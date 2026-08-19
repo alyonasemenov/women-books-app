@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Women АНАПА — Калькулятор ИМТ и Библиотека</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-color: #fdfbf7;
+      --card-bg: #ffffff;
+      --text-color: #4a3b32;
+      --accent-orange: #e87a5d;
+      --accent-hover: #d6684b;
+      --soft-beige: #f5ebe0;
+      --border-color: #e6ccb2;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 12px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 440px;
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(232, 122, 93, 0.12);
+      box-sizing: border-box;
+    }
+
+    .header-logo {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .header-logo img {
+      max-width: 170px;
+      height: auto;
+    }
+
+    .welcome-text {
+      background: var(--soft-beige);
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 0.88rem;
+      line-height: 1.4;
+      margin-bottom: 16px;
+      border-left: 4px solid var(--accent-orange);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 4px;
+      background: var(--soft-beige);
+      border: none;
+      border-radius: 10px;
+      color: var(--text-color);
+      font-weight: 600;
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: var(--accent-orange);
+      color: #fff;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .form-group { margin-bottom: 12px; }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      background: #fff;
+      font-size: 0.9rem;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    .btn-main {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent-orange);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .result-card {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 12px;
+      background: var(--soft-beige);
+      display: none;
+    }
+
+    .book-card {
+      background: var(--soft-beige);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .book-img {
+      width: 100%;
+      max-height: 250px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .paywall-box {
+      background: #fff3ed;
+      border: 1px solid var(--accent-orange);
+      padding: 16px;
+      border-radius: 14px;
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      z-index: 9999;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .modal-body {
+      background: #fff;
+      max-width: 480px;
+      margin: 20px auto;
+      padding: 18px;
+      border-radius: 16px;
+      max-height: 80vh;
+      overflow-y: auto;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  
+  <div class="header-logo">
+    <img src="./лого.png" alt="Women АНАПА">
+  </div>
+
+  <div class="welcome-text">
+    🌸 <b>Добро пожаловать!</b><br>
+    Каждая женщина уникальна. Наш вес — это естественная и живая система, которая меняется под влиянием фаз цикла, уровня гормонов и опыта материнства. Мы создали этот сервис с заботой и нежностью, чтобы Вы могли взглянуть на свое тело с любовью и научным пониманием.
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('calcTab', this)">🌸 Расчет</button>
+    <button class="tab-btn" onclick="switchTab('chartsTab', this)">📊 Динамика</button>
+    <button class="tab-btn" onclick="switchTab('booksTab', this)">📚 Книги</button>
+  </div>
+
+  <!-- ВКЛАДКА 1: КАЛЬКУЛЯТОР -->
+  <div id="calcTab" class="tab-content active">
+    <div class="form-group">
+      <label>Ваш возраст (лет):</label>
+      <input type="number" id="age" placeholder="30">
+    </div>
+
+    <div class="form-group">
+      <label>Рост (см):</label>
+      <input type="number" id="height" placeholder="168">
+    </div>
+
+    <div class="form-group">
+      <label>Текущий вес (кг):</label>
+      <input type="number" id="weight" step="0.1" placeholder="62.5">
+    </div>
+
+    <div class="form-group">
+      <label>Обхват талии (см):</label>
+      <input type="number" id="waist" placeholder="70">
+    </div>
+
+    <div class="form-group">
+      <label>Текущий день цикла (1-35):</label>
+      <input type="number" id="cycleDay" placeholder="18" min="1" max="35">
+    </div>
+
+    <div class="form-group">
+      <label>Количество беременностей и родов:</label>
+      <select id="births">
+        <option value="0">Не было беременностей/родов</option>
+        <option value="1">1 роды</option>
+        <option value="2">2 или более родов</option>
+      </select>
+    </div>
+
+    <button class="btn-main" onclick="calculate()">Рассчитать бережно</button>
+
+    <div class="result-card" id="resultBlock">
+      <div id="statusTitle" style="font-weight: bold; color: var(--accent-orange); margin-bottom: 6px;"></div>
+      <div id="calcDetails"></div>
+      <p id="careNote" style="font-size: 0.8rem; color: #666; margin-top: 8px;"></p>
+    </div>
+  </div>
+
+  <!-- ВКЛАДКА 2: ГРАФИКИ -->
+  <div id="chartsTab" class="tab-content">
+    <h3>Динамика Вашего веса</h3>
+    <canvas id="weightChart"></canvas>
+    <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">
+      💡 График разделяет Ваш «сырой» вес на весах и скорректированный вес без учета циклического отека.
+    </p>
+  </div>
+
+  <!-- ВКЛАДКА 3: КНИГИ И ПЕЙВОЛЛ -->
+  <div id="booksTab" class="tab-content">
+    
+    <div id="paywallBlock" class="paywall-box">
+      <h3>🌸 Полная библиотека женского здоровья</h3>
+      <p style="font-size: 0.85rem; color: #555;">
+        Получите доступ к 10 обзорам на главные книги о женском теле, мышлении, нейробиологии и карьере. Access предоставляется на 1 год.
+      </p>
+
+      <div style="margin: 12px 0; font-size: 0.78rem; text-align: left; color: #666;">
+        <label style="display: flex; align-items: flex-start; gap: 6px; cursor: pointer;">
+          <input type="checkbox" id="offerAgreement" checked style="width: 16px; height: 16px;">
+          <span>Я принимаю условия <a href="#" onclick="openOfferModal(event)" style="color: var(--accent-orange);">Договора оферты</a> и даю согласие на обработку персональных данных.</span>
+        </label>
+      </div>
+
+      <button class="btn-main" onclick="payWithRobokassa()">Получить доступ за 78 ₽</button>
+    </div>
+
+    <div id="booksList" style="display: none; margin-top: 15px;"></div>
+  </div>
+
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО ОФЕРТЫ -->
+<div id="offerModal" class="modal-overlay">
+  <div class="modal-body">
+    <h3 style="margin-top:0; color:var(--accent-orange); text-align:center;">ПУБЛИЧНАЯ ОФЕРТА</h3>
+    <p><b>на предоставление доступа к цифровому сервису «Калькулятор ИМТ и книги для женщин»</b></p>
+    
+    <p><b>1. Общие положения</b><br>
+    1.1. Настоящий документ является официальным предложением (публичной офертой) Самозанятого гражданина Лукиной Елены Николаевны (ИНН: 650116420073), именуемого в дальнейшем «Исполнитель», и содержит все существенные условия договора на предоставление доступа к Информационному сервису.<br>
+    1.2. Акцептом (принятием) настоящей Оферты является совершение Заказчиком оплаты в размере 78 (семьдесят восемь) рублей через платежную систему Robokassa.</p>
+
+    <p><b>2. Предмет Договора</b><br>
+    2.1. Исполнитель обязуется предоставить Заказчику неисключительный доступ к функционалу Telegram Mini App «Калькулятор ИМТ и книги для женщин» сроком на 1 год, а Заказчик обязуется оплатить услугу.<br>
+    2.2. Сервис носит исключительно информационный характер и не является медицинской консультацией.</p>
+
+    <p><b>3. Реквизиты Исполнителя</b><br>
+    Исполнитель: Лукина Елена Николаевна<br>
+    Статус: Самозанятая (Налог на профессиональный доход)<br>
+    ИНН: 650116420073<br>
+    E-mail: alyonasemenov@gmail.com</p>
+
+    <button class="btn-main" onclick="closeOfferModal()">Закрыть</button>
+  </div>
+</div>
+
+<script>
+  const tg = window.Telegram?.WebApp;
+  if(tg) tg.expand();
+
+  let isPaid = localStorage.getItem('isPaid') === 'true';
+
+  // Массив книг
+  const booksLibrary = [
+    {
+      title: "«ANNA: Биография Анны Винтур»",
+      author: "Эми Оделл",
+      image: "./book1.jpg", 
+      text: `Вы можете не увлекаться трендами с подиумов, но Вы точно оцените масштаб личности. Анна Винтур — это пример женщины, которая подчинила себе целую индустрию и стала её синонимом. Книга Эми Оделл хороша тем, что она снимает с Анны глянец и показывает её как жесткого, эффективного и гениального топ-менеджера. Для Вашего женского проекта это отличный кейс о том, как выстраивать личные границы, держать фокус на результате и оставаться безусловным авторитетом, даже если весь мир шепчется у Вас за спиной. Про “Дьявол носит Prada" писать не буду, пожалуй, эти фильмы не могли пройти мимо Вас.`
+    },
+    {
+      title: "«Палаццо Мадамы. Воображаемый музей Ирины Антоновой»",
+      author: "Лев Данилкин",
+      image: "./book2.jpg",
+      text: `Рекомендую книгу с тремя звездами Мишлен. Читать ее так же непросто, как впервые видеть исследования в научно-популярных книгах, когда автору кажется, что про упомянутый эксперимент все знают. Книга Льва Данилкина — это биография ума, вкуса и духа Ирины Антоновой, великой женщины-матриарха, которая больше полувека правила Пушкинским музеем. Это история о том, как масштаб личности позволяет не просто управлять институцией, а формировать культурный код целых поколений, привозить в СССР «Джоконду» и дружить с Шагалом. Потрясающий кейс о том, как женщина становится абсолютным и непререкаемым синонимом Искусства и Культуры.`
+    },
+    {
+      title: "«Не бойся действовать»",
+      author: "Шерил Сэндберг",
+      image: "./book3.jpg",
+      text: `Настольная книга современной бизнес-вумен от экс-операционного директора Meta. Главное: Как женщине занять место за столом переговоров, перестать сомневаться в своих силах, совмещать семейную жизнь с управлением корпорацией и запускать новые проекты. К слову, в 2026 она имеет более 2 млрд долларов и участвует в проекте Nscale - это про ИИ и чипы. Шерил учит брать судьбу в свои руки, и эта решимость идеально рифмуется с собственным желанием так же жить.`
+    },
+    {
+      title: "«XX-Мозг» (The XX Brain)",
+      author: "Лайза Москони",
+      image: "./book4.jpg",
+      text: `Лайза Москони — ведущий нейробиолог, и она дает чистую науку без поп-психологии. Книга о том, как уникально работает наша нейробиология, как гормоны и эволюция сформировали женское восприятие, нашу легендарную интуицию, память и способность обрабатывать тонны информации одновременно. Это инструкция к самой себе и мощная научная база для изучения себя.`
+    },
+    {
+      title: "«Полночная библиотека»",
+      author: "Метт Хейг",
+      image: "./book5.jpg",
+      text: `Бодрящая художественная книга о том, что где-то в «Полночной библиотеке» и только для Вас проигрывается теория Эверетта о многомировой интерпретации - попросту мысль, о том, что Вы выбираете, в какой из множества параллельных реальностей хотите и живете свою жизнь. Идеальна в тот момент, когда Вы не решаетесь сделать выбор или сожалеете о том, что не сделали когда-то решительный шаг в сторону заманчивых возможностей. Вероятно, это был единственно правильный выбор.`
+    },
+    {
+      title: "«Тысячеликая героиня»",
+      author: "Мария Татар",
+      image: "./book6.jpg",
+      text: `Эту книгу читать имеет смысл только после «Тысячеликого героя» Кэмпбелла. Потому что перед Вами не только глубокий научный труд о месте в культуре женщины, но и захватывающий интеллектуальный баттл. И удовольствие от его наблюдения усиливается многократно, когда Вы владеете досье на каждого. Мария заполняет лакуны профессора очень гармонично, строит свой замок на женских образах, оставленных в качестве Героинь за пределами существования теории Кэмпбелла и, честное слово, наполняет культуру женской силищей. Татар может отпугивать множеством отсылок к другим произведениям, но, конечно, просто игнорируйте их. Всю эту библиотеку даже таким книжным червям как я не перечитать в скором времени. Смею надеяться, что Татар подарит Вам ощущение, что Вы - одна из нас, тысячеликих героинь, которая может исполнять любую роль, которая ей предназначена или выбрана ею самой.`
+    },
+    {
+      title: "«Невидимые женщины»",
+      author: "Кэролайн Криадо Перес",
+      image: "./book7.jpg",
+      text: `Главная книга о том, почему классический ИМТ, автомобильные подушки безопасности и даже дозировки лекарств исторически рассчитывались только на мужчин. Блестящее исследование о дефиците гендерных данных, которое меняет взгляд на мир и подтверждает: наши ощущения дискомфорта в повседневной жизни — это не каприз, а системный сбой дизайна мира, который мы в силах изменить.`
+    },
+    {
+      title: "«ROAR»",
+      author: "Стейси Симс",
+      image: "./book8.jpg",
+      text: `Женщины — не маленькие мужчины. Три важнейшие фишки из книги для Вашего тренировочного процесса: 
+1. Анаболическое окно у женщин короче мужского: белок после силовой нужно закрывать строго в первые 30-45 минут.
+2. Во второй (лютеиновой) фазе цикла базальная температура выше, поэтому Вы быстрее перегреваетесь — снижайте интенсивность кардио в духоте.
+3. Высокий уровень прогестерона перед менструацией снижает объем плазмы крови (задерживая воду в тканях) — за день до тренировки пейте больше воды с электролитами (особенно с натрием), чтобы избежать резкого упадка сил.`
+    },
+    {
+      title: "«Ева. История эволюции женского тела»",
+      author: "Кэт Бохэннон",
+      image: "./book9.jpg",
+      text: `Потрясающий и мощный антропологический нон-фикшн, который переворачивает привычный патриархальный нарратив эволюции. Бохэннон на огромном научном материале доказывает, что именно особенности женской биологии, вынашивания и социальных связей двигали человечество вперед на протяжении миллионов лет. Это великолепный, железобетонный идеологический фундамент, возвращающий гордость за нашу истинную силу. Книга красивая (жаль, иллюстрации ч/б), но и написана бойко, и структурировано классно и вообще настолько воодушевляет, что я не понимаю, почему она еще не стала суперхитом по всему миру. Особенно мне нравится юмор у Бохэннон, коего очень много в книге.`
+    },
+    {
+      title: "«Выбор»",
+      author: "Эдит Ева Эгер",
+      image: "./book10.jpg",
+      text: `Одна из лучших книг, которая может позволить себе роскошь не только рассказывать тяжелейшую и одухотворяющую историю жизни Эдит, но и мягко подталкивать к решениям, которые зрели годами где-то внутри. Если не удастся сразу и с легкостью расстаться с Эгер, переходите к ее книге «Дар», ее рекомендую читать с карандашом, иначе она мало эффективна, а если уж совсем затянет, купите себе ежедневник с цитатами, который будет всегда говорить, что Вы имеете право на выбор.`
+    }
+  ];
+
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
+
+    if(tabId === 'booksTab') renderBooks();
+    if(tabId === 'chartsTab') renderChart();
+  }
+
+  function calculate() {
+    const age = parseFloat(document.getElementById('age').value);
+    const height = parseFloat(document.getElementById('height').value);
+    const weight = parseFloat(document.getElementById('weight').value);
+    const waist = parseFloat(document.getElementById('waist').value);
+    const cycleDay = parseInt(document.getElementById('cycleDay').value) || 14;
+    const births = document.getElementById('births').value;
+
+    if(!age || !height || !weight || !waist) {
+      alert("Пожалуйста, заполните основные поля формы");
+      return;
+    }
+
+    // Коррекция на задержку жидкости во 2 фазе цикла (после 15 дня)
+    let waterRetention = 0;
+    if(cycleDay >= 15) {
+      waterRetention = 1.5;
+    }
+
+    const dryWeight = weight - waterRetention;
+    const heightM = height / 100;
+    const bmi = dryWeight / (heightM * heightM);
+    const whtr = waist / height; // Индекс талия/рост
+
+    // Коррекция порога WHtR с учетом родов
+    let whtrLimit = 0.50;
+    if(births === "1") whtrLimit = 0.52;
+    if(births === "2") whtrLimit = 0.54;
+
+    document.getElementById('statusTitle').innerText = "🌸 Ваш персональный разбор готов";
+    document.getElementById('calcDetails').innerHTML = `
+      <b>Скорректированный ИМТ:</b> ${bmi.toFixed(1)}<br>
+      <b>Индекс талия/рост:</b> ${whtr.toFixed(2)} (Норма до ${whtrLimit})<br>
+      <b>Учтенный задержка воды:</b> -${waterRetention} кг
+    `;
+
+    document.getElementById('careNote').innerText = cycleDay >= 15 
+      ? "Вы находитесь во второй фазе цикла. Организм естественным образом удерживает воду — это абсолютно нормальная забота гормональной системы о себе."
+      : "Вы в первой фазе цикла: уровень отечности минимален, а уровень энергии естественным образом растет.";
+
+    document.getElementById('resultBlock').style.display = 'block';
+
+    // Сохранение в историю для графика
+    saveToHistory(cycleDay, weight, dryWeight);
+  }
+
+  function saveToHistory(day, w, dryW) {
+    let history = JSON.parse(localStorage.getItem('weightHistory') || '[]');
+    history.push({ day, weight: w, dryWeight: dryW });
+    if(history.length > 10) history.shift();
+    localStorage.setItem('weightHistory', JSON.stringify(history));
+  }
+
+  function renderChart() {
+    const history = JSON.parse(localStorage.getItem('weightHistory') || '[]');
+    const ctx = document.getElementById('weightChart').getContext('2d');
+
+    if(window.myChart) window.myChart.destroy();
+
+    window.myChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: history.map(h => `День ${h.day}`),
+        datasets: [
+          { label: 'Вес на весах', data: history.map(h => h.weight), borderColor: '#e87a5d', fill: false },
+          { label: 'Сухой вес (без отека)', data: history.map(h => h.dryWeight), borderColor: '#88d49e', fill: false }
+        ]
+      }
+    });
+  }
+
+  function renderBooks() {
+    const paywall = document.getElementById('paywallBlock');
+    const booksList = document.getElementById('booksList');
+
+    if(isPaid) {
+      paywall.style.display = 'none';
+      booksList.style.display = 'block';
+
+      booksList.innerHTML = booksLibrary.map(b => `
+        <div class="book-card">
+          <img src="${b.image}" class="book-img" alt="${b.title}" onerror="this.style.display='none'">
+          <h4 style="margin:0; color:var(--accent-orange);">${b.title}</h4>
+          <div style="font-size:0.8rem; font-weight:bold; color:#777;">${b.author}</div>
+          <div style="font-size:0.85rem; line-height:1.4;">${b.text}</div>
+        </div>
+      `).join('');
+    } else {
+      paywall.style.display = 'block';
+      booksList.style.display = 'none';
+    }
+  }
+
+  function payWithRobokassa() {
+    if(!document.getElementById('offerAgreement').checked) {
+      alert("Пожалуйста, подтвердите согласие с Договором оферты");
+      return;
+    }
+    // Вставьте сюда Вашу MerchantLogin ссылку из личного кабинета Robokassa
+    const robokassaUrl = "https://auth.robokassa.ru/Merchant/Index.aspx?MerchantLogin=YOUR_LOGIN&OutSum=78.00&Description=Women_BMI_Books";
+    
+    // После успешной оплаты для теста можно вызвать: 
+    // localStorage.setItem('isPaid', 'true'); isPaid = true; renderBooks();
+    
+    if(window.Telegram?.WebApp) {
+      window.Telegram.WebApp.openLink(robokassaUrl);
+    } else {
+      window.open(robokassaUrl, '_blank');
+    }
+  }
+
+  function openOfferModal(e) {
+    e.preventDefault();
+    document.getElementById('offerModal').style.display = 'block';
+  }
+
+  function closeOfferModal() {
+    document.getElementById('offerModal').style.display = 'none';
+  }
+</script>
+</body>
+</html>
