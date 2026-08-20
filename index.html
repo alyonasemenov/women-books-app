@@ -185,7 +185,6 @@
       <input type="number" id="waist" placeholder="70">
     </div>
 
-    <!-- ДОПОЛНИТЕЛЬНЫЕ ПАРАМЕТРЫ -->
     <div class="form-group">
       <label>Обхват бедер (см):</label>
       <input type="number" id="hips" placeholder="Не знаю / Не хочу указывать">
@@ -239,7 +238,7 @@
       <label>Текущее психологическое состояние:</label>
       <select id="stress">
         <option value="none">Не знаю / Не хочу указывать</option>
-        <option value="normal">Всё спокоено / Обычный ритм</option>
+        <option value="normal">Всё спокойно / Обычный ритм</option>
         <option value="stressed">⚡ Я в стрессе (высокий кортизол)</option>
       </select>
     </div>
@@ -253,7 +252,6 @@
       <p id="careNote" style="font-size: 0.8rem; color: #666; margin-top: 8px;"></p>
     </div>
 
-    <!-- Шкала ИМТ c подсказками -->
     <div class="bmi-card" id="bmiCard" style="display: none;">
       <div class="bmi-title">Ориентировочные диапазоны ИМТ</div>
       
@@ -293,16 +291,33 @@
   <!-- ВКЛАДКА 2: ГРАФИКИ -->
   <div id="chartsTab" class="tab-content">
     <h3>Динамика Вашего веса</h3>
-    <canvas id="weightChart"></canvas>
+    <div style="position: relative; width:100%; height: 260px;">
+      <canvas id="weightChart"></canvas>
+    </div>
+    <button class="btn-secondary" onclick="saveChartReminder()" style="margin-top: 15px;">
+      📸 Сделать скриншот / Сохранить график
+    </button>
+    <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">
+      💡 График наглядно разделяет физический вес на весах и скорректированный вес без учета циклического/кортизолового отека.
+    </p>
   </div>
 
-  <!-- ВКЛАДКА 3: КНИГИ -->
+  <!-- ВКЛАДКА 3: КНИГИ И ОПЛАТА -->
   <div id="booksTab" class="tab-content">
     <div id="paywallBlock" class="paywall-box">
       <h3>🌸 Полная библиотека женского здоровья</h3>
-      <p style="font-size: 0.85rem; color: #555;">Доступ на 1 год к 10 обзорам книг.</p>
+      <p style="font-size: 0.85rem; color: #555;">Доступ на 1 год к 10 обзорам ключевых книг о женском теле, мышлении и нейробиологии.</p>
+      
+      <div style="margin: 12px 0; font-size: 0.78rem; text-align: left; color: #666;">
+        <label style="display: flex; align-items: flex-start; gap: 6px; cursor: pointer;">
+          <input type="checkbox" id="offerAgreement" checked style="width: 16px; height: 16px;">
+          <span>Принимаю условия <a href="#" onclick="openOfferModal(event)" style="color: var(--accent-orange);">Договора оферты</a></span>
+        </label>
+      </div>
+
       <button class="btn-main" onclick="payWithRobokassa()">Получить доступ за 78 ₽</button>
     </div>
+
     <div id="booksList" style="display: none; margin-top: 15px;"></div>
   </div>
 
@@ -313,24 +328,50 @@
   <div class="modal-body">
     <h3 style="margin-top:0; color:var(--accent-orange); text-align:center;">Как устроен наш бережный расчет?</h3>
     <p>Мы не используем сухие «мужские» стандарты 19 века. Каждая введенная вами цифра мягко скорректирует итоговый анализ:</p>
-    
     <ul>
       <li><b>Фаза цикла и Кортизол (Стресс):</b> Во 2-й фазе цикла вычитается до 1.5 кг воды, а статус «Я в стрессе» дает дополнительную поправку на кортизоловую задержку жидкости (до -0.5 кг).</li>
       <li><b>Тип кости (Запястье):</b> У девушек с широкой костью верхняя норма веса мягко расширяется.</li>
       <li><b>Спорт / Силовые:</b> Если вы тренируетесь, калькулятор не считает развитые мышцы «избыточным жиром».</li>
       <li><b>Беременности и Менопауза:</b> Повышают допустимые пороги распределения жира на талии (WHtR), защищая вас от ложной тревоги.</li>
     </ul>
-
     <button class="btn-main" onclick="closeMathModal()">Понятно, спасибо</button>
   </div>
 </div>
 
+<!-- МОДАЛЬНОЕ ОКНО ОФЕРТЫ -->
+<div id="offerModal" class="modal-overlay">
+  <div class="modal-body">
+    <h3 style="margin-top:0; color:var(--accent-orange); text-align:center;">ПУБЛИЧНАЯ ОФЕРТА</h3>
+    <p><b>1. Общие положения</b><br>
+    Настоящий документ является официальным предложением Самозанятой Лукиной Елены Николаевны (ИНН: 650116420073) на предоставление доступа к сервису.<br>
+    Стоимость доступа составляет 78 (семьдесят восемь) рублей сроком на 1 год.</p>
+    <p><b>2. Контакты Исполнителя:</b><br>
+    E-mail: alyonasemenov@gmail.com</p>
+    <button class="btn-main" onclick="closeOfferModal()">Закрыть</button>
+  </div>
+</div>
+
 <script>
+  const tg = window.Telegram?.WebApp;
+  if(tg) tg.expand();
+
+  let isPaid = localStorage.getItem('isPaid') === 'true';
+
+  const booksLibrary = [
+    { title: "«ANNA: Биография Анны Винтур»", author: "Эми Оделл", text: "Масштаб личности женщины, изменившей индустрию моды..." },
+    { title: "«XX-Мозг» (The XX Brain)", author: "Лайза Москони", text: "Чистая наука о нейробиологии женского мозга..." },
+    { title: "«Невидимые женщины»", author: "Кэролайн Криадо Перес", text: "Исследование о том, как мир создавался без учета женской анатомии..." },
+    { title: "«ROAR»", author: "Стейси Симс", text: "Женщины — не маленькие мужчины. Физиология физических нагрузок..." }
+  ];
+
   function switchTab(tabId, btn) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
     btn.classList.add('active');
+
+    if(tabId === 'booksTab') renderBooks();
+    if(tabId === 'chartsTab') renderChart();
   }
 
   function calculate() {
@@ -338,7 +379,7 @@
     const weight = parseFloat(document.getElementById('weight').value);
     const waist = parseFloat(document.getElementById('waist').value);
     const hips = parseFloat(document.getElementById('hips').value);
-    const cycleDay = parseInt(document.getElementById('cycleDay').value);
+    const cycleDay = parseInt(document.getElementById('cycleDay').value) || 1;
     const stress = document.getElementById('stress').value;
     const births = document.getElementById('births').value;
     const wrist = document.getElementById('wrist').value;
@@ -350,20 +391,17 @@
       return;
     }
 
-    // 1. Учет отечности (цикл + стресс)
     let waterRetention = 0;
-    if(cycleDay && cycleDay >= 15) waterRetention += 1.5;
+    if(cycleDay >= 15) waterRetention += 1.5;
     if(stress === 'stressed') waterRetention += 0.5;
 
     const dryWeight = weight - waterRetention;
     const heightM = height / 100;
     let bmi = dryWeight / (heightM * heightM);
 
-    // Поправка на кость и мышцы
     if(wrist === 'wide') bmi -= 0.5;
     if(fitness === 'sport') bmi -= 1.0;
 
-    // Индекс Талия/Рост
     const whtr = waist / height;
     let whtrLimit = 0.50;
     if(births === "1") whtrLimit += 0.02;
@@ -380,19 +418,18 @@
 
     document.getElementById('calcDetails').innerHTML = `
       <b>Скорректированный ИМТ:</b> ${bmi.toFixed(1)}<br>
-      <b>Индекс талия/рост:</b> ${whtr.toFixed(2)} (Ваша норма до ${whtrLimit.toFixed(2)})
+      <b>Индекс талия/рост:</b> ${whtr.toFixed(2)} (Норма до ${whtrLimit.toFixed(2)})
       ${extraDetails}<br>
-      <b>Учтенная задержка воды (цикл/стресс):</b> -${waterRetention} кг
+      <b>Учтенная задержка воды:</b> -${waterRetention} кг
     `;
 
     document.getElementById('careNote').innerText = stress === 'stressed'
-      ? "Замечен повышенный стресс. Помните: кортизол удерживает воду, дайте себе время на отдых и расслабление."
-      : "Данные успешно рассчитаны с учетом всех ваших физиологических параметров.";
+      ? "Замечен повышенный стресс. Кортизол временного удерживает воду — дайте себе отдых."
+      : "Данные рассчитаны с учетом Вашей индивидуальной физиологии.";
 
     document.getElementById('resultBlock').style.display = 'block';
     document.getElementById('bmiCard').style.display = 'block';
 
-    // Двигаем ползунок
     let percentage = 0;
     if (bmi < 18.5) percentage = (bmi / 18.5) * 25;
     else if (bmi <= 24.9) percentage = 25 + ((bmi - 18.5) / (24.9 - 18.5)) * 35;
@@ -400,10 +437,90 @@
     else percentage = 80 + Math.min(((bmi - 30) / 10) * 20, 20);
 
     document.getElementById('bmiPointer').style.left = Math.max(0, Math.min(percentage, 98)) + '%';
+
+    // Сохраняем расчет в историю для графика
+    saveToHistory(cycleDay, weight, dryWeight);
+  }
+
+  function saveToHistory(day, w, dryW) {
+    let history = JSON.parse(localStorage.getItem('weightHistory') || '[]');
+    history.push({ day, weight: w, dryWeight: Number(dryW.toFixed(1)) });
+    if(history.length > 8) history.shift();
+    localStorage.setItem('weightHistory', JSON.stringify(history));
+  }
+
+  function renderChart() {
+    let history = JSON.parse(localStorage.getItem('weightHistory') || '[]');
+    
+    // Если история пуста, заносим демонстрационные точки для красоты
+    if(history.length === 0) {
+      history = [
+        { day: 5, weight: 63.5, dryWeight: 63.5 },
+        { day: 18, weight: 64.8, dryWeight: 63.3 }
+      ];
+    }
+
+    const ctx = document.getElementById('weightChart').getContext('2d');
+    if(window.myChart) window.myChart.destroy();
+
+    window.myChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: history.map(h => `День ${h.day}`),
+        datasets: [
+          { label: 'Вес на весах', data: history.map(h => h.weight), borderColor: '#e87a5d', backgroundColor: 'rgba(232, 122, 93, 0.1)', fill: true, tension: 0.3 },
+          { label: 'Сухой вес (без отека)', data: history.map(h => h.dryWeight), borderColor: '#6ec081', borderDash: [5, 5], fill: false, tension: 0.3 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+  }
+
+  function saveChartReminder() {
+    alert("📸 Сделайте скриншот экрана устройства, чтобы сохранить этот график в свою галерею!");
+  }
+
+  function renderBooks() {
+    const paywall = document.getElementById('paywallBlock');
+    const booksList = document.getElementById('booksList');
+
+    if(isPaid) {
+      paywall.style.display = 'none';
+      booksList.style.display = 'block';
+      booksList.innerHTML = booksLibrary.map(b => `
+        <div class="book-card">
+          <h4 style="margin:0; color:var(--accent-orange);">${b.title}</h4>
+          <div style="font-size:0.8rem; font-weight:bold; color:#777;">${b.author}</div>
+          <div style="font-size:0.85rem; line-height:1.4;">${b.text}</div>
+        </div>
+      `).join('');
+    } else {
+      paywall.style.display = 'block';
+      booksList.style.display = 'none';
+    }
+  }
+
+  function payWithRobokassa() {
+    if(!document.getElementById('offerAgreement').checked) {
+      alert("Пожалуйста, подтвердите согласие с Договором оферты");
+      return;
+    }
+    const robokassaUrl = "https://auth.robokassa.ru/Merchant/Index.aspx?MerchantLogin=YOUR_LOGIN&OutSum=78.00&Description=Women_BMI_Books";
+    
+    if(window.Telegram?.WebApp) {
+      window.Telegram.WebApp.openLink(robokassaUrl);
+    } else {
+      window.open(robokassaUrl, '_blank');
+    }
   }
 
   function openMathModal() { document.getElementById('mathModal').style.display = 'block'; }
   function closeMathModal() { document.getElementById('mathModal').style.display = 'none'; }
+  function openOfferModal(e) { e.preventDefault(); document.getElementById('offerModal').style.display = 'block'; }
+  function closeOfferModal() { document.getElementById('offerModal').style.display = 'none'; }
 </script>
 </body>
 </html>
