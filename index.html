@@ -172,6 +172,70 @@
       font-size: 0.85rem;
       line-height: 1.5;
     }
+
+    /* Бережная шкала ИМТ */
+    .bmi-card {
+      background: #fdfbf7;
+      border-radius: 16px;
+      padding: 18px;
+      margin: 15px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      font-family: sans-serif;
+    }
+    .bmi-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #8c827a;
+      margin-bottom: 12px;
+    }
+    .bmi-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      margin-bottom: 4px;
+      color: #4a4a4a;
+    }
+    .range-under { background: #eef7fc; }
+    .range-normal { background: #eaf5ed; }
+    .range-over { background: #fdf6e7; }
+    .range-obese { background: #fceeee; }
+
+    .bar-container {
+      height: 10px;
+      background: #e0e0e0;
+      border-radius: 5px;
+      margin: 16px 0 8px 0;
+      position: relative;
+      display: flex;
+      overflow: hidden;
+    }
+    .bar-segment { height: 100%; }
+    .s-under { width: 25%; background: #7cc2e8; }
+    .s-normal { width: 35%; background: #6ec081; }
+    .s-over { width: 20%; background: #f4c463; }
+    .s-obese { width: 20%; background: #ee7878; }
+
+    .bmi-pointer {
+      position: absolute;
+      top: -3px;
+      width: 4px;
+      height: 16px;
+      background: #2c2c2c;
+      border-radius: 2px;
+      transition: left 0.4s ease;
+    }
+
+    .bmi-disclaimer {
+      font-size: 0.75rem;
+      color: #8c8f94;
+      line-height: 1.35;
+      margin-top: 12px;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
@@ -236,113 +300,42 @@
       <div id="calcDetails"></div>
       <p id="careNote" style="font-size: 0.8rem; color: #666; margin-top: 8px;"></p>
     </div>
-    <!-- Бережная шкала ИМТ -->
-<style>
-  .bmi-card {
-    background: #fdfbf7;
-    border-radius: 16px;
-    padding: 18px;
-    margin: 15px 0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    font-family: sans-serif;
-  }
-  .bmi-title {
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #8c827a;
-    margin-bottom: 12px;
-  }
-  .bmi-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 10px;
-    border-radius: 8px;
-    font-size: 0.88rem;
-    margin-bottom: 4px;
-    color: #4a4a4a;
-  }
-  .bmi-row.active {
-    font-weight: 600;
-  }
-  /* Подсветка диапазонов */
-  .range-under { background: #eef7fc; }
-  .range-normal { background: #eaf5ed; }
-  .range-over { background: #fdf6e7; }
-  .range-obese { background: #fceeee; }
 
-  /* Шкала прогресса */
-  .bar-container {
-    height: 10px;
-    background: #e0e0e0;
-    border-radius: 5px;
-    margin: 16px 0 8px 0;
-    position: relative;
-    display: flex;
-    overflow: hidden;
-  }
-  .bar-segment { height: 100%; }
-  .s-under { width: 25%; background: #7cc2e8; }
-  .s-normal { width: 35%; background: #6ec081; }
-  .s-over { width: 20%; background: #f4c463; }
-  .s-obese { width: 20%; background: #ee7878; }
+    <!-- Шкала ИМТ -->
+    <div class="bmi-card" id="bmiCard" style="display: none;">
+      <div class="bmi-title">Ориентировочные диапазоны ИМТ</div>
+      
+      <div class="bmi-row range-under">
+        <span>Ниже ориентира</span>
+        <span>до 18.5</span>
+      </div>
+      <div class="bmi-row range-normal">
+        <span>Комфортный диапазон</span>
+        <span>18.5 – 24.9</span>
+      </div>
+      <div class="bmi-row range-over">
+        <span>Плавный диапазон</span>
+        <span>25.0 – 29.9</span>
+      </div>
+      <div class="bmi-row range-obese">
+        <span>Выше ориентира</span>
+        <span>30.0+</span>
+      </div>
 
-  /* Указатель (ползунок) */
-  .bmi-pointer {
-    position: absolute;
-    top: -3px;
-    width: 4px;
-    height: 16px;
-    background: #2c2c2c;
-    border-radius: 2px;
-    transition: left 0.4s ease;
-  }
+      <div style="position: relative;">
+        <div class="bar-container">
+          <div class="bar-segment s-under"></div>
+          <div class="bar-segment s-normal"></div>
+          <div class="bar-segment s-over"></div>
+          <div class="bar-segment s-obese"></div>
+        </div>
+        <div class="bmi-pointer" id="bmiPointer" style="left: 0%;"></div>
+      </div>
 
-  .bmi-disclaimer {
-    font-size: 0.75rem;
-    color: #8c8f94;
-    line-height: 1.35;
-    margin-top: 12px;
-    font-style: italic;
-  }
-</style>
-
-<div class="bmi-card" id="bmiCard" style="display: none;">
-  <div class="bmi-title">Ориентировочные диапазоны ИМТ</div>
-  
-  <div class="bmi-row range-under" id="row-under">
-    <span>Ниже ориентира</span>
-    <span>до 18.5</span>
-  </div>
-  <div class="bmi-row range-normal" id="row-normal">
-    <span>Комфортный диапазон</span>
-    <span>18.5 – 24.9</span>
-  </div>
-  <div class="bmi-row range-over" id="row-over">
-    <span>Плавный диапазон</span>
-    <span>25.0 – 29.9</span>
-  </div>
-  <div class="bmi-row range-obese" id="row-obese">
-    <span>Выше ориентира</span>
-    <span>30.0+</span>
-  </div>
-
-  <!-- Шкала с указателем -->
-  <div style="position: relative;">
-    <div class="bar-container">
-      <div class="bar-segment s-under"></div>
-      <div class="bar-segment s-normal"></div>
-      <div class="bar-segment s-over"></div>
-      <div class="bar-segment s-obese"></div>
+      <div class="bmi-disclaimer">
+        * ИМТ — статистический ориентир. Он не учитывает фазы цикла, объем мышц, отечность и индивидуальную уникальность вашего тела.
+      </div>
     </div>
-    <div class="bmi-pointer" id="bmiPointer" style="left: 0%;"></div>
-  </div>
-
-  <div class="bmi-disclaimer">
-    * ИМТ — статистический ориентир. Он не учитывает фазы цикла, объем мышц, отечность и индивидуальную уникальность вашего тела.
-  </div>
-</div>
   </div>
 
   <!-- ВКЛАДКА 2: ГРАФИКИ -->
@@ -358,7 +351,7 @@
   <div id="booksTab" class="tab-content">
     
     <div id="paywallBlock" class="paywall-box">
-      <h3> Полная библиотека женского здоровья</h3>
+      <h3>🌸 Полная библиотека женского здоровья</h3>
       <p style="font-size: 0.85rem; color: #555;">
         Получите доступ к 10 обзорам на главные книги о женском теле, мышлении, нейробиологии и карьере. Доступ предоставляется на 1 год.
       </p>
@@ -408,70 +401,66 @@
 
   let isPaid = localStorage.getItem('isPaid') === 'true';
 
-  // Массив книг
   const booksLibrary = [
     {
       title: "«ANNA: Биография Анны Винтур»",
       author: "Эми Оделл",
       image: "./book1.jpg", 
-      text: `Вы можете не увлекаться трендами с подиумов, но Вы точно оцените масштаб личности. Анна Винтур — это пример женщины, которая подчинила себе целую индустрию и стала её синонимом. Книга Эми Оделл хороша тем, что она снимает с Анны глянец и показывает её как жесткого, эффективного и гениального топ-менеджера. Для Вашего женского проекта это отличный кейс о том, как выстраивать личные границы, держать фокус на результате и оставаться безусловным авторитетом, даже если весь мир шепчется у Вас за спиной. Про “Дьявол носит Prada" писать не буду, пожалуй, эти фильмы не могли пройти мимо Вас.`
+      text: `Вы можете не увлекаться трендами с подиумов, но Вы точно оцените масштаб личности. Анна Винтур — это пример женщины, которая подчинила себе целую индустрию и стала её синонимом...`
     },
     {
       title: "«Палаццо Мадамы. Воображаемый музей Ирины Антоновой»",
       author: "Лев Данилкин",
       image: "./book2.jpg",
-      text: `Рекомендую книгу с тремя звездами Мишлен. Читать ее так же непросто, как впервые видеть исследования в научно-популярных книгах, когда автору кажется, что про упомянутый эксперимент все знают. Книга Льва Данилкина — это биография ума, вкуса и духа Ирины Антоновой, великой женщины-матриарха, которая больше полувека правила Пушкинским музеем. Это история о том, как масштаб личности позволяет не просто управлять институцией, а формировать культурный код целых поколений, привозить в СССР «Джоконду» и дружить с Шагалом. Потрясающий кейс о том, как женщина становится абсолютным и непререкаемым синонимом Искусства и Культуры.`
+      text: `Рекомендую книгу с тремя звездами Мишлен...`
     },
     {
       title: "«Не бойся действовать»",
       author: "Шерил Сэндберг",
       image: "./book3.jpg",
-      text: `Настольная книга современной бизнес-вумен от экс-операционного директора Meta. Главное: Как женщине занять место за столом переговоров, перестать сомневаться в своих силах, совмещать семейную жизнь с управлением корпорацией и запускать новые проекты. К слову, в 2026 она имеет более 2 млрд долларов и участвует в проекте Nscale - это про ИИ и чипы. Шерил учит брать судьбу в свои руки, и эта решимость идеально рифмуется с собственным желанием так же жить.`
+      text: `Настольная книга современной бизнес-вумен от экс-операционного директора Meta...`
     },
     {
       title: "«XX-Мозг» (The XX Brain)",
       author: "Лайза Москони",
       image: "./book4.jpg",
-      text: `Лайза Москони — ведущий нейробиолог, и она дает чистую науку без поп-психологии. Книга о том, как уникально работает наша нейробиология, как гормоны и эволюция сформировали женское восприятие, нашу легендарную интуицию, память и способность обрабатывать тонны информации одновременно. Это инструкция к самой себе и мощная научная база для изучения себя.`
+      text: `Лайза Москони — ведущий нейробиолог, и она дает чистую науку без поп-психологии...`
     },
     {
       title: "«Полночная библиотека»",
       author: "Метт Хейг",
       image: "./book5.jpg",
-      text: `Бодрящая художественная книга о том, что где-то в «Полночной библиотеке» и только для Вас проигрывается теория Эверетта о многомировой интерпретации - попросту мысль, о том, что Вы выбираете, в какой из множества параллельных реальностей хотите и живете свою жизнь. Идеальна в тот момент, когда Вы не решаетесь сделать выбор или сожалеете о том, что не сделали когда-то решительный шаг в сторону заманчивых возможностей. Вероятно, это был единственно правильный выбор.`
+      text: `Бодрящая художественная книга о том, что где-то в «Полночной библиотеке»...`
     },
     {
       title: "«Тысячеликая героиня»",
       author: "Мария Татар",
       image: "./book6.jpg",
-      text: `Эту книгу читать имеет смысл только после «Тысячеликого героя» Кэмпбелла. Потому что перед Вами не только глубокий научный труд о месте в культуре женщины, но и захватывающий интеллектуальный баттл. И удовольствие от его наблюдения усиливается многократно, когда Вы владеете досье на каждого. Мария заполняет лакуны профессора очень гармонично, строит свой замок на женских образах, оставленных в качестве Героинь за пределами существования теории Кэмпбелла и, честное слово, наполняет культуру женской силищей. Татар может отпугивать множеством отсылок к другим произведениям, но, конечно, просто игнорируйте их. Всю эту библиотеку даже таким книжным червям как я не перечитать в скором времени. Смею надеяться, что Татар подарит Вам ощущение, что Вы - одна из нас, тысячеликих героинь, которая может исполнять любую роль, которая ей предназначена или выбрана ею самой.`
+      text: `Эту книгу читать имеет смысл только после «Тысячеликого героя» Кэмпбелла...`
     },
     {
       title: "«Невидимые женщины»",
       author: "Кэролайн Криадо Перес",
       image: "./book7.jpg",
-      text: `Главная книга о том, почему классический ИМТ, автомобильные подушки безопасности и даже дозировки лекарств исторически рассчитывались только на мужчин. Блестящее исследование о дефиците гендерных данных, которое меняет взгляд на мир и подтверждает: наши ощущения дискомфорта в повседневной жизни — это не каприз, а системный сбой дизайна мира, который мы в силах изменить.`
+      text: `Главная книга о том, почему классический ИМТ, автомобильные подушки безопасности...`
     },
     {
       title: "«ROAR»",
       author: "Стейси Симс",
       image: "./book8.jpg",
-      text: `Женщины — не маленькие мужчины. Три важнейшие фишки из книги для Вашего тренировочного процесса: 
-1. Анаболическое окно у женщин короче мужского: белок после силовой нужно закрывать строго в первые 30-45 минут.
-2. Во второй (лютеиновой) фазе цикла базальная температура выше, поэтому Вы быстрее перегреваетесь — снижайте интенсивность кардио в духоте.
-3. Высокий уровень прогестерона перед менструацией снижает объем плазмы крови (задерживая воду в тканях) — за день до тренировки пейте больше воды с электролитами (особенно с натрием), чтобы избежать резкого упадка сил.`
+      text: `Женщины — не маленькие мужчины...`
     },
     {
       title: "«Ева. История эволюции женского тела»",
       author: "Кэт Бохэннон",
       image: "./book9.jpg",
-      text: `Потрясающий и мощный антропологический нон-фикшн, который переворачивает привычный патриархальный нарратив эволюции. Бохэннон на огромном научном материале доказывает, что именно особенности женской биологии, вынашивания и социальных связей двигали человечество вперед на протяжении миллионов лет. Это великолепный, железобетонный идеологический фундамент, возвращающий гордость за нашу истинную силу. Книга красивая (жаль, иллюстрации ч/б), но и написана бойко, и структурировано классно и вообще настолько воодушевляет, что я не понимаю, почему она еще не стала суперхитом по всему миру. Особенно мне нравится юмор у Бохэннон, коего очень много в книге.`
+      text: `Потрясающий и мощный антропологический нон-фикшн...`
     },
     {
       title: "«Выбор»",
       author: "Эдит Ева Эгер",
       image: "./book10.jpg",
-      text: `Одна из лучших книг, которая может позволить себе роскошь не только рассказывать тяжелейшую и одухотворяющую историю жизни Эдит, но и мягко подталкивать к решениям, которые зрели годами где-то внутри. Если не удастся сразу и с легкостью расстаться с Эгер, переходите к ее книге «Дар», ее рекомендую читать с карандашом, иначе она мало эффективна, а если уж совсем затянет, купите себе ежедневник с цитатами, который будет всегда говорить, что Вы имеете право на выбор.`
+      text: `Одна из лучших книг, которая может позволить себе роскошь...`
     }
   ];
 
@@ -484,46 +473,8 @@
     if(tabId === 'booksTab') renderBooks();
     if(tabId === 'chartsTab') renderChart();
   }
- function calculate() {
-  const age = parseFloat(document.getElementById('age').value);
-  const height = parseFloat(document.getElementById('height').value);
-  const weight = parseFloat(document.getElementById('weight').value);
 
-  if (!height || !weight || height <= 0 || weight <= 0) {
-    alert("Пожалуйста, укажите корректные рост и вес.");
-    return;
-  }
-
-  // Расчет ИМТ
-  const bmi = (weight / ((height / 100) ** 2)).toFixed(1);
-
-  // Отображаем блоки с результатом и шкалой
-  document.getElementById('resultBlock').style.display = 'block';
-  document.getElementById('bmiCard').style.display = 'block';
-
-  // Вывод названия и деталей ИМТ
-  const statusTitle = document.getElementById('statusTitle');
-  const calcDetails = document.getElementById('calcDetails');
-  
-  if (statusTitle) statusTitle.innerText = `Ваш ИМТ: ${bmi}`;
-  if (calcDetails) calcDetails.innerText = `Рост: ${height} см | Вес: ${weight} кг`;
-
-  // Двигаем ползунок на шкале
-  let percentage = 0;
-  if (bmi < 18.5) {
-    percentage = (bmi / 18.5) * 25;
-  } else if (bmi <= 24.9) {
-    percentage = 25 + ((bmi - 18.5) / (24.9 - 18.5)) * 35;
-  } else if (bmi <= 29.9) {
-    percentage = 60 + ((bmi - 25) / (29.9 - 25)) * 20;
-  } else {
-    percentage = 80 + Math.min(((bmi - 30) / 10) * 20, 20);
-  }
-
-  const pointer = document.getElementById('bmiPointer');
-  if (pointer) {
-    pointer.style.left = Math.max(0, Math.min(percentage, 98)) + '%';
-  }
+  function calculate() {
     const age = parseFloat(document.getElementById('age').value);
     const height = parseFloat(document.getElementById('height').value);
     const weight = parseFloat(document.getElementById('weight').value);
@@ -536,7 +487,7 @@
       return;
     }
 
-    // Коррекция на задержку жидкости во 2 фазе цикла (после 15 дня)
+    // Коррекция на задержку жидкости во 2 фазе цикла
     let waterRetention = 0;
     if(cycleDay >= 15) {
       waterRetention = 1.5;
@@ -545,9 +496,8 @@
     const dryWeight = weight - waterRetention;
     const heightM = height / 100;
     const bmi = dryWeight / (heightM * heightM);
-    const whtr = waist / height; // Индекс талия/рост
+    const whtr = waist / height;
 
-    // Коррекция порога WHtR с учетом родов
     let whtrLimit = 0.50;
     if(births === "1") whtrLimit = 0.52;
     if(births === "2") whtrLimit = 0.54;
@@ -556,7 +506,7 @@
     document.getElementById('calcDetails').innerHTML = `
       <b>Скорректированный ИМТ:</b> ${bmi.toFixed(1)}<br>
       <b>Индекс талия/рост:</b> ${whtr.toFixed(2)} (Норма до ${whtrLimit})<br>
-      <b>Учтенный задержка воды:</b> -${waterRetention} кг
+      <b>Учтенная задержка воды:</b> -${waterRetention} кг
     `;
 
     document.getElementById('careNote').innerText = cycleDay >= 15 
@@ -564,8 +514,25 @@
       : "Вы в первой фазе цикла: уровень отечности минимален, а уровень энергии естественным образом растет.";
 
     document.getElementById('resultBlock').style.display = 'block';
+    document.getElementById('bmiCard').style.display = 'block';
 
-    // Сохранение в историю для графика
+    // Двигаем ползунок
+    let percentage = 0;
+    if (bmi < 18.5) {
+      percentage = (bmi / 18.5) * 25;
+    } else if (bmi <= 24.9) {
+      percentage = 25 + ((bmi - 18.5) / (24.9 - 18.5)) * 35;
+    } else if (bmi <= 29.9) {
+      percentage = 60 + ((bmi - 25) / (29.9 - 25)) * 20;
+    } else {
+      percentage = 80 + Math.min(((bmi - 30) / 10) * 20, 20);
+    }
+
+    const pointer = document.getElementById('bmiPointer');
+    if (pointer) {
+      pointer.style.left = Math.max(0, Math.min(percentage, 98)) + '%';
+    }
+
     saveToHistory(cycleDay, weight, dryWeight);
   }
 
@@ -621,11 +588,7 @@
       alert("Пожалуйста, подтвердите согласие с Договором оферты");
       return;
     }
-    // Вставьте сюда Вашу MerchantLogin ссылку из личного кабинета Robokassa
     const robokassaUrl = "https://auth.robokassa.ru/Merchant/Index.aspx?MerchantLogin=YOUR_LOGIN&OutSum=78.00&Description=Women_BMI_Books";
-    
-    // После успешной оплаты для теста можно вызвать: 
-    // localStorage.setItem('isPaid', 'true'); isPaid = true; renderBooks();
     
     if(window.Telegram?.WebApp) {
       window.Telegram.WebApp.openLink(robokassaUrl);
