@@ -297,6 +297,9 @@
     <button class="btn-secondary" onclick="saveChartReminder()" style="margin-top: 15px;">
       📸 Сделать скриншот / Сохранить график
     </button>
+    <button class="btn-secondary" onclick="clearHistory()" style="margin-top: 8px; color: #8c827a; border-color: #e6ccb2;">
+      🗑 Сбросить историю замеров
+    </button>
     <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">
       💡 График наглядно разделяет физический вес на весах и скорректированный вес без учета циклического/кортизолового отека.
     </p>
@@ -444,37 +447,78 @@
 
   function saveToHistory(day, w, dryW) {
     let history = JSON.parse(localStorage.getItem('weightHistory') || '[]');
-    history.push({ day, weight: w, dryWeight: Number(dryW.toFixed(1)) });
-    if(history.length > 8) history.shift();
+    
+    // Проверяем, есть ли уже запись для этого дня цикла
+    const existingIndex = history.findIndex(item => item.day === day);
+    
+    if (existingIndex !== -1) {
+      // Обновляем данные для текущего дня
+      history[existingIndex] = { day, weight: w, dryWeight: Number(dryW.toFixed(1)) };
+    } else {
+      // Добавляем новый день
+      history.push({ day, weight: w, dryWeight: Number(dryW.toFixed(1)) });
+    }
+
+    // Сортируем дни цикла по порядку (1, 2, 3... 35)
+    history.sort((a, b) => a.day - b.day);
+
     localStorage.setItem('weightHistory', JSON.stringify(history));
+  }
+
+  function clearHistory() {
+    if (confirm("Вы уверены, что хотите очистить историю замеров?")) {
+      localStorage.removeItem('weightHistory');
+      renderChart();
+    }
   }
 
   function renderChart() {
     let history = JSON.parse(localStorage.getItem('weightHistory') || '[]');
     
-    // Если история пуста, заносим демонстрационные точки для красоты
-    if(history.length === 0) {
-      history = [
-        { day: 5, weight: 63.5, dryWeight: 63.5 },
-        { day: 18, weight: 64.8, dryWeight: 63.3 }
-      ];
-    }
-
     const ctx = document.getElementById('weightChart').getContext('2d');
     if(window.myChart) window.myChart.destroy();
+
+    // Если история пуста, показываем базовый наглядный пример
+    if(history.length === 0) {
+      history = [
+        { day: 5, weight: 62.0, dryWeight: 62.0 },
+        { day: 14, weight: 62.2, dryWeight: 62.2 },
+        { day: 21, weight: 63.5, dryWeight: 62.0 },
+        { day: 28, weight: 63.8, dryWeight: 62.1 }
+      ];
+    }
 
     window.myChart = new Chart(ctx, {
       type: 'line',
       data: {
         labels: history.map(h => `День ${h.day}`),
         datasets: [
-          { label: 'Вес на весах', data: history.map(h => h.weight), borderColor: '#e87a5d', backgroundColor: 'rgba(232, 122, 93, 0.1)', fill: true, tension: 0.3 },
-          { label: 'Сухой вес (без отека)', data: history.map(h => h.dryWeight), borderColor: '#6ec081', borderDash: [5, 5], fill: false, tension: 0.3 }
+          { 
+            label: 'Вес на весах', 
+            data: history.map(h => h.weight), 
+            borderColor: '#e87a5d', 
+            backgroundColor: 'rgba(232, 122, 93, 0.1)', 
+            fill: true, 
+            tension: 0.3 
+          },
+          { 
+            label: 'Сухой вес (без отека)', 
+            data: history.map(h => h.dryWeight), 
+            borderColor: '#6ec081', 
+            borderDash: [5, 5], 
+            fill: false, 
+            tension: 0.3 
+          }
         ]
       },
       options: {
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: false
+          }
+        }
       }
     });
   }
