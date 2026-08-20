@@ -308,7 +308,7 @@
   }
 </style>
 
-<div class="bmi-card">
+<div class="bmi-card" id="bmiCard" style="display: none;">
   <div class="bmi-title">Ориентировочные диапазоны ИМТ</div>
   
   <div class="bmi-row range-under" id="row-under">
@@ -484,8 +484,31 @@
     if(tabId === 'booksTab') renderBooks();
     if(tabId === 'chartsTab') renderChart();
   }
+ function calculate() {
+  const age = parseFloat(document.getElementById('age').value);
+  const height = parseFloat(document.getElementById('height').value);
+  const weight = parseFloat(document.getElementById('weight').value);
 
-  function calculate() {// Функция обновления шкалы ИМТ
+  if (!height || !weight || height <= 0 || weight <= 0) {
+    alert("Пожалуйста, укажите корректные рост и вес.");
+    return;
+  }
+
+  // Расчет ИМТ
+  const bmi = (weight / ((height / 100) ** 2)).toFixed(1);
+
+  // Отображаем блоки с результатом и шкалой
+  document.getElementById('resultBlock').style.display = 'block';
+  document.getElementById('bmiCard').style.display = 'block';
+
+  // Вывод названия и деталей ИМТ
+  const statusTitle = document.getElementById('statusTitle');
+  const calcDetails = document.getElementById('calcDetails');
+  
+  if (statusTitle) statusTitle.innerText = `Ваш ИМТ: ${bmi}`;
+  if (calcDetails) calcDetails.innerText = `Рост: ${height} см | Вес: ${weight} кг`;
+
+  // Двигаем ползунок на шкале
   let percentage = 0;
   if (bmi < 18.5) {
     percentage = (bmi / 18.5) * 25;
