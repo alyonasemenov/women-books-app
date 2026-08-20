@@ -236,6 +236,113 @@
       <div id="calcDetails"></div>
       <p id="careNote" style="font-size: 0.8rem; color: #666; margin-top: 8px;"></p>
     </div>
+    <!-- Бережная шкала ИМТ -->
+<style>
+  .bmi-card {
+    background: #fdfbf7;
+    border-radius: 16px;
+    padding: 18px;
+    margin: 15px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    font-family: sans-serif;
+  }
+  .bmi-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #8c827a;
+    margin-bottom: 12px;
+  }
+  .bmi-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    margin-bottom: 4px;
+    color: #4a4a4a;
+  }
+  .bmi-row.active {
+    font-weight: 600;
+  }
+  /* Подсветка диапазонов */
+  .range-under { background: #eef7fc; }
+  .range-normal { background: #eaf5ed; }
+  .range-over { background: #fdf6e7; }
+  .range-obese { background: #fceeee; }
+
+  /* Шкала прогресса */
+  .bar-container {
+    height: 10px;
+    background: #e0e0e0;
+    border-radius: 5px;
+    margin: 16px 0 8px 0;
+    position: relative;
+    display: flex;
+    overflow: hidden;
+  }
+  .bar-segment { height: 100%; }
+  .s-under { width: 25%; background: #7cc2e8; }
+  .s-normal { width: 35%; background: #6ec081; }
+  .s-over { width: 20%; background: #f4c463; }
+  .s-obese { width: 20%; background: #ee7878; }
+
+  /* Указатель (ползунок) */
+  .bmi-pointer {
+    position: absolute;
+    top: -3px;
+    width: 4px;
+    height: 16px;
+    background: #2c2c2c;
+    border-radius: 2px;
+    transition: left 0.4s ease;
+  }
+
+  .bmi-disclaimer {
+    font-size: 0.75rem;
+    color: #8c8f94;
+    line-height: 1.35;
+    margin-top: 12px;
+    font-style: italic;
+  }
+</style>
+
+<div class="bmi-card">
+  <div class="bmi-title">Ориентировочные диапазоны ИМТ</div>
+  
+  <div class="bmi-row range-under" id="row-under">
+    <span>Ниже ориентира</span>
+    <span>до 18.5</span>
+  </div>
+  <div class="bmi-row range-normal" id="row-normal">
+    <span>Комфортный диапазон</span>
+    <span>18.5 – 24.9</span>
+  </div>
+  <div class="bmi-row range-over" id="row-over">
+    <span>Плавный диапазон</span>
+    <span>25.0 – 29.9</span>
+  </div>
+  <div class="bmi-row range-obese" id="row-obese">
+    <span>Выше ориентира</span>
+    <span>30.0+</span>
+  </div>
+
+  <!-- Шкала с указателем -->
+  <div style="position: relative;">
+    <div class="bar-container">
+      <div class="bar-segment s-under"></div>
+      <div class="bar-segment s-normal"></div>
+      <div class="bar-segment s-over"></div>
+      <div class="bar-segment s-obese"></div>
+    </div>
+    <div class="bmi-pointer" id="bmiPointer" style="left: 0%;"></div>
+  </div>
+
+  <div class="bmi-disclaimer">
+    * ИМТ — статистический ориентир. Он не учитывает фазы цикла, объем мышц, отечность и индивидуальную уникальность вашего тела.
+  </div>
+</div>
   </div>
 
   <!-- ВКЛАДКА 2: ГРАФИКИ -->
@@ -251,9 +358,9 @@
   <div id="booksTab" class="tab-content">
     
     <div id="paywallBlock" class="paywall-box">
-      <h3>🌸 Полная библиотека женского здоровья</h3>
+      <h3> Полная библиотека женского здоровья</h3>
       <p style="font-size: 0.85rem; color: #555;">
-        Получите доступ к 10 обзорам на главные книги о женском теле, мышлении, нейробиологии и карьере. Access предоставляется на 1 год.
+        Получите доступ к 10 обзорам на главные книги о женском теле, мышлении, нейробиологии и карьере. Доступ предоставляется на 1 год.
       </p>
 
       <div style="margin: 12px 0; font-size: 0.78rem; text-align: left; color: #666;">
@@ -378,7 +485,22 @@
     if(tabId === 'chartsTab') renderChart();
   }
 
-  function calculate() {
+  function calculate() {// Функция обновления шкалы ИМТ
+  let percentage = 0;
+  if (bmi < 18.5) {
+    percentage = (bmi / 18.5) * 25;
+  } else if (bmi <= 24.9) {
+    percentage = 25 + ((bmi - 18.5) / (24.9 - 18.5)) * 35;
+  } else if (bmi <= 29.9) {
+    percentage = 60 + ((bmi - 25) / (29.9 - 25)) * 20;
+  } else {
+    percentage = 80 + Math.min(((bmi - 30) / 10) * 20, 20);
+  }
+
+  const pointer = document.getElementById('bmiPointer');
+  if (pointer) {
+    pointer.style.left = Math.max(0, Math.min(percentage, 98)) + '%';
+  }
     const age = parseFloat(document.getElementById('age').value);
     const height = parseFloat(document.getElementById('height').value);
     const weight = parseFloat(document.getElementById('weight').value);
