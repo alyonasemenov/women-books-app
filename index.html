@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Women: Бережный ИМТ</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -26,7 +26,7 @@
 
         * {
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
         }
 
         body {
@@ -41,6 +41,8 @@
         .container {
             max-width: 620px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
 
         .header {
@@ -67,14 +69,16 @@
             display: flex;
             gap: 6px;
             margin-bottom: 24px;
-            background: rgba(238, 229, 220, 0.5);
+            background: rgba(238, 229, 220, 0.6);
             padding: 4px;
             border-radius: 12px;
+            position: relative;
+            z-index: 10;
         }
 
         .tab-btn {
             flex: 1;
-            padding: 10px 6px;
+            padding: 12px 6px;
             border: none;
             background: transparent;
             font-family: 'Inter', sans-serif;
@@ -83,14 +87,18 @@
             color: var(--text-muted);
             cursor: pointer;
             border-radius: 9px;
-            transition: all 0.25s ease;
+            transition: all 0.2s ease;
             text-align: center;
+            outline: none;
+            -webkit-appearance: none;
+            touch-action: manipulation;
         }
 
         .tab-btn.active {
             background-color: var(--card-bg);
             color: var(--accent-color);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
 
         .tab-content {
@@ -108,6 +116,8 @@
             margin-bottom: 20px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
+            position: relative;
+            z-index: 2;
         }
 
         .card h2, .card h3 {
@@ -141,15 +151,16 @@
 
         input[type="number"], input[type="text"], select {
             width: 100%;
-            padding: 11px 14px;
+            padding: 12px 14px;
             border: 1px solid var(--border-color);
             border-radius: 10px;
             background-color: #fcfbfa;
             font-family: 'Inter', sans-serif;
-            font-size: 14px;
+            font-size: 15px;
             color: var(--text-main);
             outline: none;
             transition: border-color 0.2s;
+            -webkit-appearance: none;
         }
 
         input:focus, select:focus {
@@ -159,7 +170,7 @@
 
         .btn-primary {
             width: 100%;
-            padding: 14px;
+            padding: 15px;
             background-color: var(--accent-color);
             color: white;
             border: none;
@@ -170,14 +181,14 @@
             cursor: pointer;
             transition: background 0.2s, transform 0.1s;
             box-shadow: 0 4px 12px rgba(212, 136, 123, 0.25);
-        }
-
-        .btn-primary:hover {
-            background-color: var(--accent-hover);
+            position: relative;
+            z-index: 5;
+            touch-action: manipulation;
         }
 
         .btn-primary:active {
-            transform: scale(0.99);
+            transform: scale(0.98);
+            background-color: var(--accent-hover);
         }
 
         .result-box {
@@ -195,7 +206,6 @@
             color: var(--text-main);
         }
 
-        /* Визуальная шкала ИМТ */
         .scale-container {
             margin: 18px 0 10px;
         }
@@ -235,7 +245,6 @@
             border: 1px dashed var(--border-color);
         }
 
-        /* Платный шлюз и Промокод */
         .paywall-container {
             text-align: center;
             padding: 30px 20px;
@@ -269,6 +278,7 @@
             font-size: 13.5px;
             cursor: pointer;
             white-space: nowrap;
+            touch-action: manipulation;
         }
 
         .checkbox-container {
@@ -284,13 +294,17 @@
         .checkbox-container input {
             margin-top: 3px;
             cursor: pointer;
+            width: 18px;
+            height: 18px;
         }
 
         .legal-link {
             color: var(--accent-color);
             text-decoration: underline;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
+            display: inline-block;
+            padding: 2px 4px;
         }
 
         .article-btn {
@@ -311,10 +325,12 @@
             align-items: center;
             box-shadow: var(--shadow);
             transition: border-color 0.2s;
+            touch-action: manipulation;
         }
 
-        .article-btn:hover {
+        .article-btn:active {
             border-color: var(--accent-color);
+            background-color: var(--bg-color);
         }
 
         .article-btn::after {
@@ -328,7 +344,7 @@
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background: #ffffff;
-            z-index: 2000;
+            z-index: 9999;
             overflow-y: auto;
             padding: 24px 20px 40px;
         }
@@ -346,7 +362,7 @@
             background: var(--accent-light);
             border: none;
             color: var(--accent-color);
-            padding: 6px 14px;
+            padding: 8px 16px;
             border-radius: 20px;
             font-weight: 600;
             font-size: 13px;
@@ -385,8 +401,8 @@
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 3000;
+            background: rgba(0,0,0,0.6);
+            z-index: 10000;
             padding: 20px;
             overflow-y: auto;
         }
@@ -399,7 +415,7 @@
             padding: 24px;
             font-size: 13px;
             line-height: 1.6;
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
         }
     </style>
@@ -413,9 +429,9 @@
     </div>
 
     <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('calc', event)">Калькулятор</button>
-        <button class="tab-btn" onclick="switchTab('articles', event)">Статьи о здоровье</button>
-        <button class="tab-btn" onclick="switchTab('chart', event)">Динамика ИМТ</button>
+        <button type="button" class="tab-btn active" onclick="switchTab('calc', this)">Калькулятор</button>
+        <button type="button" class="tab-btn" onclick="switchTab('articles', this)">Статьи о здоровье</button>
+        <button type="button" class="tab-btn" onclick="switchTab('chart', this)">Динамика ИМТ</button>
     </div>
 
     <div id="tab-calc" class="tab-content active">
@@ -427,22 +443,22 @@
             </div>
 
             <div class="form-group">
-                <label>Рост (см):</label>
+                <label for="height">Рост (см):</label>
                 <input type="number" id="height" placeholder="например, 168" value="168">
             </div>
 
             <div class="form-group">
-                <label>Текущий вес (кг):</label>
+                <label for="weight">Текущий вес (кг):</label>
                 <input type="number" id="weight" placeholder="например, 62" value="62">
             </div>
 
             <div class="form-group">
-                <label>Возраст (лет):</label>
+                <label for="age">Возраст (лет):</label>
                 <input type="number" id="age" placeholder="например, 32" value="32">
             </div>
 
             <div class="form-group">
-                <label>Обхват бёдер / Пропорции:</label>
+                <label for="hips">Обхват бёдер / Пропорции:</label>
                 <select id="hips">
                     <option value="proportional">Пропорциональное распределение (0 кг)</option>
                     <option value="wide">Выраженный объем в области бёдер (-0.5 кг)</option>
@@ -452,7 +468,7 @@
             </div>
 
             <div class="form-group">
-                <label>Уровень физической активности:</label>
+                <label for="activity">Уровень физической активности:</label>
                 <select id="activity">
                     <option value="low">Минимальная / Сидячий образ жизни (0 кг)</option>
                     <option value="medium">Умеренная (1–3 тренировки в неделю: -0.5 кг)</option>
@@ -462,17 +478,17 @@
             </div>
 
             <div class="form-group">
-                <label>Наличие детей / Беременностей:</label>
+                <label for="children">Наличие детей / Беременностей:</label>
                 <select id="children">
                     <option value="no">Нет / Не было (0 кг)</option>
                     <option value="postpartum">Восстановление после родов (до 1.5 лет: -1.0 кг)</option>
-                    <option value="multiple">Мама двух и более детей (тканевый баланс: -0.5 кг)</option>
-                    <option value="unknown" selected>Не знаю / Не учитывать</option>
+                    <option value="multiple">Более 1 беременности (тканевый баланс: -0.5 кг)</option>
+                    <option value="unknown" selected>Не учитывать</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label>Фаза цикла (отечность):</label>
+                <label for="cycle">Фаза цикла (отечность):</label>
                 <select id="cycle">
                     <option value="follicular">Фолликулярная (1–12 день) [0 кг]</option>
                     <option value="ovulation">Овуляция (13–15 день) [-0.5 кг]</option>
@@ -483,7 +499,7 @@
             </div>
 
             <div class="form-group">
-                <label>Уровень стресса и сон:</label>
+                <label for="stress">Уровень стресса и сон:</label>
                 <select id="stress">
                     <option value="normal">Нормальный сон и спокойствие [0 кг]</option>
                     <option value="high">Хронический стресс / Недосып [-1.0 кг]</option>
@@ -491,11 +507,319 @@
                 </select>
             </div>
 
-            <button class="btn-primary" onclick="calculateBMI()">Рассчитать бережный ИМТ</button>
+            <button type="button" class="btn-primary" onclick="calculateBMI()">Рассчитать бережный ИМТ</button>
 
             <div id="result" class="result-box"></div>
         </div>
+    </div>
 
-        <div class="card" style="margin-top: 30px;">
-            <h3>Как мы считаем ваш Бережный ИМТ?</h3>
-            <p style="font-size: 1
+    <div id="tab-articles" class="tab-content">
+        <div id="articles-lock" class="card paywall-container">
+            <h2>Доступ к библиотеке знаний</h2>
+            <p style="font-size: 14px; color: var(--text-muted);">Эксклюзивные научные разборы, инсайты из ключевых книг и статьи по заботе о женском теле.</p>
+            <div class="paywall-price">78 ₽ <span style="font-size: 14px; color: var(--text-muted); font-weight: normal;">/ доступ на 1 год</span></div>
+            
+            <div class="promo-box">
+                <input type="text" id="promo-input-1" placeholder="Введите промокод">
+                <button type="button" class="btn-promo" onclick="applyPromo('promo-input-1')">Применить</button>
+            </div>
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="agree-articles">
+                <label for="agree-articles">Я прочитал(а) и согласен(на) с условиями <span class="legal-link" onclick="openLegalModal()">Публичной оферты</span></label>
+            </div>
+
+            <button type="button" class="btn-primary" onclick="processPayment('articles')">Оплатить доступ (78 ₽)</button>
+        </div>
+
+        <div id="articles-content" style="display: none;">
+            <button type="button" class="article-btn" onclick="openArticle('art1')">10 инсайтов из книги «Невидимые женщины»</button>
+            <button type="button" class="article-btn" onclick="openArticle('art2')">10 факторов, влияющих на вес, кроме питания</button>
+            <button type="button" class="article-btn" onclick="openArticle('art3')">10 книг для заботы о себе</button>
+            <button type="button" class="article-btn" onclick="openArticle('art4')">Девочкам нужно больше книг</button>
+            <button type="button" class="article-btn" onclick="openArticle('art5')">10 инсайтов из книги Мартина Селигмана</button>
+        </div>
+    </div>
+
+    <div id="tab-chart" class="tab-content">
+        <div id="chart-lock" class="card paywall-container">
+            <h2>Трекер физиологической динамики</h2>
+            <p style="font-size: 14px; color: var(--text-muted);">График вашего чистого ИМТ без гормонального «шума». Удобный формат для сохранения и анализа.</p>
+            <div class="paywall-price">78 ₽ <span style="font-size: 14px; color: var(--text-muted); font-weight: normal;">/ доступ на 1 год</span></div>
+            
+            <div class="promo-box">
+                <input type="text" id="promo-input-2" placeholder="Введите промокод">
+                <button type="button" class="btn-promo" onclick="applyPromo('promo-input-2')">Применить</button>
+            </div>
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="agree-chart">
+                <label for="agree-chart">Я прочитал(а) и согласен(на) с условиями <span class="legal-link" onclick="openLegalModal()">Публичной оферты</span></label>
+            </div>
+
+            <button type="button" class="btn-primary" onclick="processPayment('chart')">Оплатить доступ (78 ₽)</button>
+        </div>
+
+        <div id="chart-content" style="display: none;">
+            <div class="card">
+                <h3>Динамика чистого ИМТ</h3>
+                <p style="font-size: 13px; color: var(--text-muted);">График учитывает только ваш физиологический вес.</p>
+                <canvas id="bmiChart" width="400" height="230"></canvas>
+            </div>
+            <button type="button" class="btn-primary" style="background-color: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); box-shadow: none;" onclick="clearHistory()">Очистить историю измерений</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        © Самозанятая Лукина Елена Николаевна, ИНН 650116420073<br>
+        Сервис «Women: Бережный ИМТ & Библиотека»<br>
+        <span class="legal-link" onclick="openLegalModal()">Публичная оферта и условия оказания услуг</span>
+    </div>
+</div>
+
+<div id="articleModal" class="modal-fullscreen">
+    <div class="modal-header">
+        <span style="font-weight: 600; font-size: 14px; color: var(--text-muted);">Библиотека Women</span>
+        <button type="button" class="close-btn" onclick="closeArticle()">Закрыть ✕</button>
+    </div>
+    <div id="articleBody" class="full-article-content"></div>
+</div>
+
+<div id="legalModal" class="legal-modal">
+    <div class="legal-content">
+        <div style="text-align: right;"><span style="cursor:pointer; font-weight:bold; font-size: 20px; padding: 5px;" onclick="closeLegalModal()">✕</span></div>
+        <h3 style="text-align: center; margin-top:0;">ПУБЛИЧНАЯ ОФЕРТА<br><small style="font-weight: normal; font-size: 12px;">о заключении договора об оказании услуг</small></h3>
+        <p><strong>1. Общие положения</strong><br>Исполнитель: Самозанятая Лукина Елена Николаевна (ИНН 650116420073).</p>
+        <p><strong>2. Предмет оферты</strong><br>Исполнитель предоставляет доступ к информационной библиотеке и трекеру динамики ИМТ сроком на 365 дней.</p>
+        <p><strong>3. Активация и доступ</strong><br>Доступ предоставляется после оплаты 78 рублей или при успешном вводе промокода МНЕНУЖНО.</p>
+        <p><strong>4. Контакты Исполнителя:</strong><br>E-mail: alyonasemenov@gmail.com<br>Тел: +7 985 715-15-05</p>
+    </div>
+</div>
+
+<script>
+    // Инициализация Telegram WebApp
+    if (window.Telegram && window.Telegram.WebApp) {
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+    }
+
+    let isPaid = localStorage.getItem('women_app_paid') === 'true';
+
+    function checkAccess() {
+        if (isPaid) {
+            const artLock = document.getElementById('articles-lock');
+            const artContent = document.getElementById('articles-content');
+            const chartLock = document.getElementById('chart-lock');
+            const chartContent = document.getElementById('chart-content');
+            
+            if (artLock) artLock.style.display = 'none';
+            if (artContent) artContent.style.display = 'block';
+            if (chartLock) chartLock.style.display = 'none';
+            if (chartContent) chartContent.style.display = 'block';
+
+            let history = JSON.parse(localStorage.getItem('bmi_history') || '[]');
+            if (history.length > 0) updateChart(history);
+        }
+    }
+
+    function unlockAll() {
+        localStorage.setItem('women_app_paid', 'true');
+        isPaid = true;
+        checkAccess();
+    }
+
+    function applyPromo(inputId) {
+        const inp = document.getElementById(inputId);
+        if (!inp) return;
+        const val = inp.value.trim().toUpperCase();
+        if (val === 'МНЕНУЖНО') {
+            unlockAll();
+            alert('Промокод «МНЕНУЖНО» применен! Доступ открыт.');
+        } else {
+            alert('Неверный промокод. Попробуйте еще раз.');
+        }
+    }
+
+    function processPayment(tab) {
+        const checkbox = document.getElementById(tab === 'articles' ? 'agree-articles' : 'agree-chart');
+        if (!checkbox || !checkbox.checked) {
+            alert('Пожалуйста, подтвердите согласие с Публичной офертой.');
+            return;
+        }
+        alert('Переход на оплату 78 ₽...');
+        unlockAll();
+    }
+
+    function switchTab(tabName, btnElement) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        if (btnElement) {
+            btnElement.classList.add('active');
+        }
+
+        const activeContent = document.getElementById('tab-' + tabName);
+        if (activeContent) {
+            activeContent.classList.add('active');
+        }
+
+        if (tabName === 'chart' && isPaid) {
+            let history = JSON.parse(localStorage.getItem('bmi_history') || '[]');
+            if (history.length > 0) setTimeout(() => updateChart(history), 100);
+        }
+    }
+
+    function calculateBMI() {
+        const heightInput = document.getElementById('height');
+        const weightInput = document.getElementById('weight');
+        const ageInput = document.getElementById('age');
+
+        if (!heightInput || !weightInput) return;
+
+        const height = parseFloat(heightInput.value) / 100;
+        let weight = parseFloat(weightInput.value);
+        const ageVal = parseFloat(ageInput ? ageInput.value : 0);
+
+        if (!height || !weight || height <= 0 || weight <= 0) {
+            alert('Пожалуйста, введите корректный рост и вес.');
+            return;
+        }
+
+        let adjustment = 0;
+        let details = [];
+
+        if (ageVal && ageVal >= 45 && ageVal <= 59) {
+            adjustment -= 0.5;
+            details.push('Возрастной диапазон 45–59 лет: -0.5 кг');
+        } else if (ageVal && ageVal >= 60) {
+            adjustment -= 1.0;
+            details.push('Возрастной диапазон 60+ лет: -1.0 кг');
+        }
+
+        const hips = document.getElementById('hips').value;
+        if (hips === 'wide') { adjustment -= 0.5; details.push('Тип распределения ткани (бёдра): -0.5 кг'); }
+
+        const activity = document.getElementById('activity').value;
+        if (activity === 'medium') { adjustment -= 0.5; details.push('Умеренная активность: -0.5 кг'); }
+        if (activity === 'high') { adjustment -= 1.0; details.push('Высокая активность / мышцы: -1.0 кг'); }
+
+        const children = document.getElementById('children').value;
+        if (children === 'postpartum') { adjustment -= 1.0; details.push('Послеродовой период (до 1.5 лет): -1.0 кг'); }
+        if (children === 'multiple') { adjustment -= 0.5; details.push('Мама двоих и более детей: -0.5 кг'); }
+
+        const cycle = document.getElementById('cycle').value;
+        if (cycle === 'luteal') { adjustment -= 1.5; details.push('Задержка воды в ПМС: -1.5 кг'); }
+        if (cycle === 'ovulation') { adjustment -= 0.5; details.push('Задержка воды в овуляцию: -0.5 кг'); }
+
+        const stress = document.getElementById('stress').value;
+        if (stress === 'high') { adjustment -= 1.0; details.push('Кортизоловый отек / недосып: -1.0 кг'); }
+
+        const adjustedWeight = weight + adjustment;
+        const bmi = parseFloat((adjustedWeight / (height * height)).toFixed(1));
+
+        let category = '';
+        let explanation = '';
+        if (bmi < 18.5) {
+            category = 'Дефицит массы тела';
+            explanation = 'Показатель ниже стандартного диапазона. Организму может требоваться дополнительный ресурс для поддержки гормонального баланса.';
+        } else if (bmi >= 18.5 && bmi <= 24.9) {
+            category = 'Гармоничный физиологический вес';
+            explanation = 'Ваш чистый вес находится в оптимальном физиологическом диапазоне.';
+        } else if (bmi >= 25 && bmi <= 29.9) {
+            category = 'Небольшой запас массы';
+            explanation = 'Мягкое отклонение от стандарта, часто связанное с индивидуальной костной структурой или распределением ткани.';
+        } else {
+            category = 'Повышенный показатель ИМТ';
+            explanation = 'Рекомендуется обращать внимание на общее самочувствие и физическую активность без жестких ограничений.';
+        }
+
+        let percent = ((bmi - 15) / (35 - 15)) * 100;
+        if (percent < 0) percent = 0;
+        if (percent > 100) percent = 100;
+
+        const resultDiv = document.getElementById('result');
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = `
+            <h4>Ваш Бережный ИМТ: ${bmi}</h4>
+            <p style="margin: 4px 0 10px 0; font-size: 14px; font-weight: 500; color: var(--accent-color);">${category}</p>
+            
+            <div class="scale-container">
+                <div class="scale-bar">
+                    <div class="scale-marker" style="left: ${percent}%;"></div>
+                </div>
+                <div class="scale-labels">
+                    <span>15 (Дефицит)</span>
+                    <span>18.5–24.9 (Норма)</span>
+                    <span>35+ (Повышен)</span>
+                </div>
+            </div>
+
+            <p style="font-size: 13px; color: var(--text-main); margin-top: 10px;">${explanation}</p>
+            <p style="font-size: 13.5px; margin-top: 12px;"><strong>Вес на весах:</strong> ${weight} кг \vert{} <strong>Чистый вес:</strong> ${adjustedWeight.toFixed(1)} кг</p>
+            
+            <div class="calc-breakdown">
+                <strong>Примененные физиологические поправки:</strong>
+                <ul style="margin: 6px 0 0 0; padding-left: 18px;">
+                    ${details.length > 0 ? details.map(d => `<li>${d}</li>`).join('') : '<li>Базовое состояние без временных факторов</li>'}
+                </ul>
+            </div>
+        `;
+
+        if (isPaid) { saveToChart(bmi, adjustedWeight.toFixed(1)); }
+    }
+
+    let chart;
+    function saveToChart(bmi, weight) {
+        const dateStr = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+        let history = JSON.parse(localStorage.getItem('bmi_history') || '[]');
+        history.push({ date: dateStr, bmi: bmi, weight: weight });
+        if (history.length > 12) history.shift();
+        localStorage.setItem('bmi_history', JSON.stringify(history));
+    }
+
+    function updateChart(history) {
+        const canvas = document.getElementById('bmiChart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const labels = history.map(item => item.date);
+        const data = history.map(item => item.bmi);
+
+        if (chart) chart.destroy();
+
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Бережный ИМТ',
+                    data: data,
+                    borderColor: '#d4887b',
+                    backgroundColor: 'rgba(212, 136, 123, 0.12)',
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#d4887b'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: false } }
+            }
+        });
+    }
+
+    function clearHistory() {
+        localStorage.removeItem('bmi_history');
+        if (chart) chart.destroy();
+        alert('История измерений очищена.');
+    }
+
+    const articlesData = {
+        art1: `<h2>10 инсайтов из книги «Невидимые женщины»</h2>
+               <p><em>Кэролайн Криадо Перес</em></p>
+               <p>1. <strong>Дизайн мира по умолчанию:</strong> Большинство медицинских исследований базировались на данных 70-килограммового мужчины.</p>
+               <p>2. <strong>Нормы ИМТ:</strong> Стандартный ИМТ не учитывает женский процент жировой ткани для гормональной системы.</p>
+               <p>3. <strong>Безопасность авто:</strong> Манекены для краш-тестов до сих пор моделируются без учета женской анатомии.</p>
+               <p>4. <strong>Симптомы инфаркта:</strong> Женские симптомы сердечного приступа часто классифицируются как «нетипичные».</p>
+               <p>5. <strong>Неоплачиваемый труд:</strong> Женщины выполняют около 75% неоплачиваемой домашней работы.</p>
