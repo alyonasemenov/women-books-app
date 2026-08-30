@@ -1,570 +1,621 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Women АНАПА — Калькулятор ИМТ и Библиотека</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    :root {
-      --bg-color: #fdfbf7;
-      --card-bg: #ffffff;
-      --text-color: #4a3b32;
-      --accent-orange: #e87a5d;
-      --accent-hover: #d6684b;
-      --soft-beige: #f5ebe0;
-      --border-color: #e6ccb2;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Women: Бережный ИМТ & Библиотека</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #fdfbf7;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --accent-color: #d88a8a;
+            --accent-hover: #c57575;
+            --border-color: #f0e6df;
+            --badge-bg: #f8ecee;
+        }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      margin: 0;
-      padding: 12px;
-      display: flex;
-      justify-content: center;
-    }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 16px;
+            line-height: 1.6;
+        }
 
-    .app-container {
-      width: 100%;
-      max-width: 440px;
-      background: var(--card-bg);
-      border-radius: 20px;
-      padding: 16px;
-      box-shadow: 0 8px 24px rgba(232, 122, 93, 0.12);
-      box-sizing: border-box;
-    }
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+        }
 
-    .header-logo { text-align: center; margin-bottom: 12px; }
-    .header-logo img { max-width: 170px; height: auto; }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-    .welcome-text {
-      background: var(--soft-beige);
-      padding: 14px;
-      border-radius: 14px;
-      font-size: 0.88rem;
-      line-height: 1.4;
-      margin-bottom: 16px;
-      border-left: 4px solid var(--accent-orange);
-    }
+        .header h1 {
+            font-size: 22px;
+            color: var(--accent-color);
+            margin: 0 0 6px 0;
+        }
 
-    .tabs { display: flex; gap: 6px; margin-bottom: 16px; }
-    .tab-btn {
-      flex: 1; padding: 10px 4px; background: var(--soft-beige); border: none;
-      border-radius: 10px; color: var(--text-color); font-weight: 600;
-      font-size: 0.82rem; cursor: pointer;
-    }
-    .tab-btn.active { background: var(--accent-orange); color: #fff; }
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+        }
 
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+        .tab-btn {
+            flex: 1;
+            padding: 10px 4px;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.2s, color 0.2s;
+        }
 
-    .form-group { margin-bottom: 12px; }
-    label { display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 4px; }
-    input, select {
-      width: 100%; padding: 10px; border: 1px solid var(--border-color);
-      border-radius: 10px; background: #fff; font-size: 0.9rem; box-sizing: border-box; outline: none;
-    }
+        .tab-btn.active {
+            background-color: var(--badge-bg);
+            color: var(--accent-color);
+        }
 
-    .btn-main {
-      width: 100%; padding: 12px; background: var(--accent-orange); color: white;
-      border: none; border-radius: 12px; font-size: 0.95rem; font-weight: bold;
-      cursor: pointer; margin-top: 10px;
-    }
+        .tab-content {
+            display: none;
+        }
 
-    .btn-secondary {
-      width: 100%; padding: 10px; background: transparent; color: var(--accent-orange);
-      border: 1px solid var(--accent-orange); border-radius: 12px; font-size: 0.85rem;
-      font-weight: 600; cursor: pointer; margin-top: 8px;
-    }
+        .tab-content.active {
+            display: block;
+        }
 
-    .result-card {
-      margin-top: 16px; padding: 14px; border-radius: 12px;
-      background: var(--soft-beige); display: none;
-    }
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid var(--border-color);
+        }
 
-    .book-card {
-      background: var(--soft-beige); border-radius: 12px; padding: 12px;
-      margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px;
-    }
-    .book-img { width: 100%; max-height: 250px; object-fit: contain; border-radius: 8px; }
+        .form-group {
+            margin-bottom: 16px;
+        }
 
-    .paywall-box {
-      background: #fff3ed; border: 1px solid var(--accent-orange);
-      padding: 16px; border-radius: 14px; text-align: center; margin-top: 15px;
-    }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
 
-    .modal-overlay {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6); z-index: 9999; padding: 20px; box-sizing: border-box;
-    }
+        input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
 
-    .modal-body {
-      background: #fff; max-width: 480px; margin: 20px auto; padding: 18px;
-      border-radius: 16px; max-height: 80vh; overflow-y: auto; font-size: 0.85rem; line-height: 1.5;
-    }
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
 
-    /* Шкала ИМТ */
-    .bmi-card {
-      background: #fdfbf7; border-radius: 16px; padding: 18px; margin: 15px 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-    .bmi-title {
-      font-size: 0.85rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.5px; color: #8c827a; margin-bottom: 12px;
-    }
-    .bmi-row {
-      display: flex; flex-direction: column; padding: 8px 10px;
-      border-radius: 8px; font-size: 0.85rem; margin-bottom: 6px; color: #4a4a4a;
-    }
-    .bmi-row-header { display: flex; justify-content: space-between; font-weight: bold; }
-    .bmi-row-sub { font-size: 0.75rem; color: #666; margin-top: 2px; }
+        .btn-submit:hover {
+            background-color: var(--accent-hover);
+        }
 
-    .range-under { background: #eef7fc; }
-    .range-normal { background: #eaf5ed; }
-    .range-over { background: #fdf6e7; }
-    .range-obese { background: #fceeee; }
+        .result-box {
+            display: none;
+            background-color: var(--badge-bg);
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            border-left: 4px solid var(--accent-color);
+        }
 
-    .bar-container {
-      height: 10px; background: #e0e0e0; border-radius: 5px;
-      margin: 16px 0 8px 0; position: relative; display: flex; overflow: hidden;
-    }
-    .bar-segment { height: 100%; }
-    .s-under { width: 25%; background: #7cc2e8; }
-    .s-normal { width: 35%; background: #6ec081; }
-    .s-over { width: 20%; background: #f4c463; }
-    .s-obese { width: 20%; background: #ee7878; }
+        .calc-breakdown {
+            background-color: #fff8f8;
+            border: 1px dashed var(--accent-color);
+            padding: 14px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 13px;
+        }
 
-    .bmi-pointer {
-      position: absolute; top: -3px; width: 4px; height: 16px;
-      background: #2c2c2c; border-radius: 2px; transition: left 0.4s ease;
-    }
-  </style>
+        .article-card {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+        }
+
+        .article-card h3 {
+            color: var(--accent-color);
+            margin-top: 0;
+        }
+
+        .book-item {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .book-img {
+            max-width: 100%;
+            max-height: 320px;
+            display: block;
+            margin: 12px auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer a {
+            color: var(--accent-color);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 24px;
+            position: relative;
+            max-height: 80vh;
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 16px; right: 16px;
+            font-size: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 
-<div class="app-container">
-  
-  <div class="header-logo">
-    <img src="./logo.jpg" alt="Книги и здоровье">
-  </div>
-
-  <div class="welcome-text">
-    🌸 <b>Добро пожаловать!</b><br>
-    Каждая женщина уникальна. Наш вес — это естественная и живая система, которая меняется под влиянием фаз цикла, уровня гормонов и опыта материнства.
-  </div>
-
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('calcTab', this)">🌸 Расчет</button>
-    <button class="tab-btn" onclick="switchTab('chartsTab', this)">📊 Динамика</button>
-    <button class="tab-btn" onclick="switchTab('booksTab', this)">📚 Книги</button>
-  </div>
-
-  <!-- ВКЛАДКА 1: КАЛЬКУЛЯТОР -->
-  <div id="calcTab" class="tab-content active">
-    
-    <div class="form-group">
-      <label>Ваш возраст (лет):</label>
-      <input type="number" id="age" placeholder="30">
+<div class="container">
+    <div class="header">
+        <h1>Women: Бережный ИМТ & Библиотека</h1>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Расчет ИМТ с учетом реальной женской физиологии</p>
     </div>
 
-    <div class="form-group">
-      <label>Рост (см):</label>
-      <input type="number" id="height" placeholder="168">
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('calc', event)">🧮 Калькулятор</button>
+        <button class="tab-btn" onclick="switchTab('method', event)">📊 Как мы считаем?</button>
+        <button class="tab-btn" onclick="switchTab('library', event)">📚 Библиотека</button>
     </div>
 
-    <div class="form-group">
-      <label>Текущий вес (кг):</label>
-      <input type="number" id="weight" step="0.1" placeholder="62.5">
-    </div>
+    <!-- ТАБ 1: КАЛЬКУЛЯТОР И ДИНАМИКА -->
+    <div id="tab-calc" class="tab-content active">
+        <div class="card">
+            <div class="form-group">
+                <label>Рост (см):</label>
+                <input type="number" id="height" placeholder="168" value="168">
+            </div>
+            <div class="form-group">
+                <label>Текущий вес на весах (кг):</label>
+                <input type="number" id="weight" placeholder="62" value="62">
+            </div>
+            <div class="form-group">
+                <label>Фаза менструального цикла:</label>
+                <select id="cycle">
+                    <option value="follicular">Фолликулярная (1-12 день) [0 кг]</option>
+                    <option value="ovulation">Овуляция (13-15 день) [-0.5 кг]</option>
+                    <option value="luteal">Лютеиновая / ПМС (16-28 день) [-1.5 кг]</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Уровень стресса / Кортизол:</label>
+                <select id="stress">
+                    <option value="normal">Нормальный / Низкий [0 кг]</option>
+                    <option value="high">Высокий стресс / Недосып [-1.0 кг]</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Тип телосложения (Индекс Соловьева):</label>
+                <select id="bodyType">
+                    <option value="normosthenic">Нормостенический (запястье 15-17 см) [0 кг]</option>
+                    <option value="asthenic">Астенический / Тонкокостный (&lt;15 см) [+1.0 кг]</option>
+                    <option value="hypersthenic">Гиперстенический / Ширококостный (&gt;17 см) [-1.5 кг]</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Послеродовой период (восстановление/лактация):</label>
+                <select id="postpartum">
+                    <option value="no">Нет [0 кг]</option>
+                    <option value="yes">Да (до 1.5 лет после родов) [-1.0 кг]</option>
+                </select>
+            </div>
+            <button class="btn-submit" onclick="calculateBMI()">Рассчитать физиологический ИМТ</button>
 
-    <div class="form-group">
-      <label>Обхват талии (см):</label>
-      <input type="number" id="waist" placeholder="70">
-    </div>
-
-    <div class="form-group">
-      <label>Обхват бедер (см):</label>
-      <input type="number" id="hips" placeholder="Не знаю / Не хочу указывать">
-    </div>
-
-    <div class="form-group">
-      <label>День цикла (1-35):</label>
-      <input type="number" id="cycleDay" placeholder="Не знаю / Не хочу указывать" min="1" max="35">
-    </div>
-
-    <div class="form-group">
-      <label>Беременности и роды:</label>
-      <select id="births">
-        <option value="none">Не знаю / Не хочу указывать</option>
-        <option value="0">Не было родов</option>
-        <option value="1">1 роды</option>
-        <option value="2">2 или более родов</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>Запястье (тип телосложения):</label>
-      <select id="wrist">
-        <option value="none">Не знаю / Не хочу указывать</option>
-        <option value="thin">Тонкая кость (&lt; 14 см)</option>
-        <option value="medium">Средняя кость (14 - 16 см)</option>
-        <option value="wide">Широкая кость (&gt; 16 см)</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>Физическая активность / Спорт:</label>
-      <select id="fitness">
-        <option value="none">Не знаю / Не хочу указывать</option>
-        <option value="low">Низкая (сидячий образ жизни)</option>
-        <option value="medium">Умеренная (1-3 тренировки в неделю)</option>
-        <option value="sport">Высокая / Силовые тренировки (мышцы)</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>Репродуктивный статус / Фаза:</label>
-      <select id="menopause">
-        <option value="none">Не знаю / Не хочу указывать</option>
-        <option value="regular">Регулярный цикл</option>
-        <option value="perimeno">Перименопауза / Менопауза</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>Текущее психологическое состояние:</label>
-      <select id="stress">
-        <option value="none">Не знаю / Не хочу указывать</option>
-        <option value="normal">Всё спокойно / Обычный ритм</option>
-        <option value="stressed">⚡ Я в стрессе (высокий кортизол)</option>
-      </select>
-    </div>
-
-    <button class="btn-main" onclick="calculate()">Рассчитать бережно</button>
-    <button class="btn-secondary" onclick="openMathModal()">📖 Как мы считаем?</button>
-
-    <div class="result-card" id="resultBlock">
-      <div id="statusTitle" style="font-weight: bold; color: var(--accent-orange); margin-bottom: 6px;"></div>
-      <div id="calcDetails"></div>
-      <p id="careNote" style="font-size: 0.8rem; color: #666; margin-top: 8px;"></p>
-    </div>
-
-    <div class="bmi-card" id="bmiCard" style="display: none;">
-      <div class="bmi-title">Ориентировочные диапазоны ИМТ</div>
-      
-      <div class="bmi-row range-under">
-        <div class="bmi-row-header"><span>Ниже ориентира</span><span>до 18.5</span></div>
-        <div class="bmi-row-sub">Внимание к ресурсам организма и питанию</div>
-      </div>
-
-      <div class="bmi-row range-normal">
-        <div class="bmi-row-header"><span>Комфортный диапазон</span><span>18.5 – 24.9</span></div>
-        <div class="bmi-row-sub">Гармоничный баланс массы и роста</div>
-      </div>
-
-      <div class="bmi-row range-over">
-        <div class="bmi-row-header"><span>Выше ориентира</span><span>25.0 – 29.9</span></div>
-        <div class="bmi-row-sub">Плавный диапазон, требует внимания к самочувствию</div>
-      </div>
-
-      <div class="bmi-row range-obese">
-        <div class="bmi-row-header"><span>Значительное превышение</span><span>30.0+</span></div>
-        <div class="bmi-row-sub">Повод позаботиться о здоровье с поддержкой врачей</div>
-      </div>
-
-      <div style="position: relative;">
-        <div class="bar-container">
-          <div class="bar-segment s-under"></div>
-          <div class="bar-segment s-normal"></div>
-          <div class="bar-segment s-over"></div>
-          <div class="bar-segment s-obese"></div>
+            <div id="result" class="result-box"></div>
         </div>
-        <div class="bmi-pointer" id="bmiPointer" style="left: 0%;"></div>
-      </div>
+
+        <div class="card">
+            <h3>Динамика изменений ИМТ</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">Результаты сохраняются, чтобы отслеживать чистый тренд без учета гормональных колебаний.</p>
+            <canvas id="bmiChart" width="400" height="200"></canvas>
+            <button style="margin-top: 15px; background: none; border: 1px solid #d88a8a; color: #d88a8a; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;" onclick="clearHistory()">Очистить историю</button>
+        </div>
     </div>
 
-  </div>
+    <!-- ТАБ 2: МЕТОДИКА "КАК МЫ СЧИТАЕМ?" (РАСШИРЕНА В 2 РАЗА) -->
+    <div id="tab-method" class="tab-content">
+        <div class="card article-card">
+            <h3>Подробная методика: Как мы считаем ваш Бережный ИМТ?</h3>
+            <p>Классический индекс массы тела (ИМТ) был разработан бельгийским математиком Адольфом Кетле еще в 1832 году. Он рассчитывается по примитивной формуле: <code>Вес (кг) / (Рост (м))²</code>. Главная проблема этой формулы — она абсолютно **не учитывает женскую нейроэндокринную систему, фазы менструального цикла и задержку жидкости**.</p>
+            
+            <p>Из-за этого обычные весы часто вводят женщин в заблуждение, показывая «лишний вес», который на самом деле является просто водой или особенностью тяжелой костной ткани.</p>
 
-  <!-- ВКЛАДКА 2: ГРАФИКИ -->
-  <div id="chartsTab" class="tab-content">
-    <h3>Динамика Вашего веса</h3>
-    <div style="position: relative; width:100%; height: 260px;">
-      <canvas id="weightChart"></canvas>
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
+
+            <h4>Математическая модель Бережного ИМТ</h4>
+            <p>Мы сначала рассчитываем ваш **Физиологический (чистый) вес**, и только потом подставляем его в классическую формулу Кетле:</p>
+            <p style="background: var(--badge-bg); padding: 10px; border-radius: 6px; text-align: center; font-weight: bold;">
+                Физиологический ИМТ = (Вес на весах − Сумма поправок) / (Рост в метрах)²
+            </p>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
+
+            <h4>Полная расшифровка всех коэффициентов и поправок:</h4>
+
+            <p><strong>1. Гормональная задержка жидкости по фазам цикла</strong></p>
+            <ul>
+                <li><strong>Лютеиновая фаза / ПМС (16–28 день): −1.5 кг.</strong> Во второй фазе цикла под влиянием высокого уровня прогестерона организмом активно удерживаются ионы натрия. Это заставляет ткани удерживать от 1.5 до 3 литров воды. Это не жир, и этот вес полностью уходит в первые дни менструации.</li>
+                <li><strong>Овуляция (13–15 день): −0.5 кг.</strong> Кратковременный пик эстрогенов может вызывать небольшую отечность и чувствительность груди, вычитаем 500 грамм отека.</li>
+                <li><strong>Фолликулярная фаза (1–12 день): 0 кг.</strong> Организмом управляет эстроген, задержка воды минимальна. Весы показывают ваш базовый уровень.</li>
+            </ul>
+
+            <p><strong>2. Кортизоловая отечность (Стресс и Недосып): −1.0 кг.</strong></p>
+            <p>При хроническом стрессе или сне менее 7 часов надпочечники вырабатывают повышенное количество кортизола. Кортизол задерживает воду в межклеточном пространстве (особенно на лице и животе). Это временный гидратационный сдвиг, а не увеличение жировой ткани.</p>
+
+            <p><strong>3. Костный скелет по Индексу Соловьева</strong></p>
+            <p>Вес скелета у разных женщин может отличаться на 2–4 кг при одинаковом росте. Мы используем обхват запястья для коррекции:</p>
+            <ul>
+                <li><strong>Гиперстенический тип (запястье > 17 см): −1.5 кг.</strong> Плотная, широкая кость добавляет реальный вес на весах, но не связана с избыточным жиром.</li>
+                <li><strong>Астенический тип (запястье < 15 см): +1.0 кг.</strong> Тонкокостный скелет может маскировать дефицит мышечной массы или скрытый жир (skinny fat). Поправка делает расчет честным.</li>
+                <li><strong>Нормостенический тип (15–17 см): 0 кг.</strong> Стандартное соотношение костной и мышечной массы.</li>
+            </ul>
+
+            <p><strong>4. Послеродовое восстановление и лактация: −1.0 кг.</strong></p>
+            <p>В течение 1.5 лет после родов организм женщины сохраняет увеличенный объем плазмы крови, гипертрофированную ткань молочных желез и естественные отеки лимфосистемы. Мы аккуратно вычитаем 1 кг, чтобы уберечь маму от необоснованных диет.</p>
+        </div>
     </div>
-    <button class="btn-secondary" onclick="saveChartReminder()" style="margin-top: 15px;">
-      📸 Сделать скриншот / Сохранить график
-    </button>
-    <button class="btn-secondary" onclick="clearHistory()" style="margin-top: 8px; color: #8c827a; border-color: #e6ccb2;">
-      🗑 Сбросить историю замеров
-    </button>
-    <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">
-      💡 График наглядно разделяет физический вес на весах и скорректированный вес без учета циклического/кортизолового отека.
-    </p>
-  </div>
 
-  <!-- ВКЛАДКА 3: КНИГИ И ОПЛАТА -->
-  <div id="booksTab" class="tab-content">
-    <div id="paywallBlock" class="paywall-box">
-      <h3>🌸 Полная библиотека женского здоровья</h3>
-      <p style="font-size: 0.85rem; color: #555;">Доступ на 1 год к 10 обзорам ключевых книг о женском теле, мышлении и нейробиологии.</p>
-      
-      <div style="margin: 12px 0; font-size: 0.78rem; text-align: left; color: #666;">
-        <label style="display: flex; align-items: flex-start; gap: 6px; cursor: pointer;">
-          <input type="checkbox" id="offerAgreement" checked style="width: 16px; height: 16px;">
-          <span>Принимаю условия <a href="#" onclick="openOfferModal(event)" style="color: var(--accent-orange);">Договора оферты</a></span>
-        </label>
-      </div>
+    <!-- ТАБ 3: БИБЛИОТЕКА И 10 КНИГ -->
+    <div id="tab-library" class="tab-content">
 
-      <button class="btn-main" onclick="payWithRobokassa()">Получить доступ за 78 ₽</button>
+        <!-- Полная статья про книги для девочек без сокращений -->
+        <div class="card article-card">
+            <h3>Девочкам нужно больше книг</h3>
+            <p><em>Какие это книги и почему больше?</em></p>
+            <p>Гендерные стереотипы летают назойливыми мухами и вокруг выбора книг для детей. Принято считать, что младших школьников можно увлечь серией «Как приручить дракона?», девочки с охотой прочтут что-то о единорогах и феях. Но помимо условно гендерно-нейтральной школьной литературы, есть и потрясающий клондайк — литература домашняя, та, что дети читают для удовольствия. И если с мальчишками не нужно напрягаться в поиске подходящих им по полу и возрасту героев, то для девочек я предлагаю более тщательный подход.</p>
+            
+            <p>В популярной речи нигерийской писательницы Чимаманды Нгози Адичи на TED есть любопытный фрагмент. Она рассказывает о своем детстве: счастливом и полном книг. Еще девочкой семи лет она начала писать истории, подражая прочитанным английским книгам. Вообразите себе эти детские книжки: голубоглазые персонажи с белой кожей, играющие в снегу, они говорят о погоде и радуются, что солнце вышло из-за туч. Чимаманда к этому возрасту не пробовала имбирный эль и не знала, какой снег на ощупь. Она думала, что книжная реальность именно такова, и поэтому в нее не проникают темнокожие девочки, живущие под палящим солнцем.</p>
+
+            <p>Есть довольно большой шанс, что девочки, читающие книги, где главная роль априори достается мальчишкам, примут реальность именно таковой: где она — наблюдатель за чужими мальчишескими историями.</p>
+
+            <p>Я убеждена, что родители вряд ли прочат своим дочерям только такой вариант развития событий. Ниже — примеры книг, которые помогут девочкам видеть перед собой сильных героинь и знать, что они могут стать главными действующими лицами своей жизни.</p>
+        </div>
+
+        <!-- 10 КНИГ ИЗ ЗАПРОСА -->
+        <div class="card article-card">
+            <h3>Рекомендуемая библиотека для женщин</h3>
+
+            <!-- Книга 1 -->
+            <div class="book-item">
+                <h4>1. «ANNA: Биография Анны Винтур»</h4>
+                <p><strong>Автор:</strong> Эми Оделл</p>
+                <img class="book-img" src="./book1.jpg" alt="Анна Винтур">
+                <p>Вы можете не увлекаться трендами с подиумов, но Вы точно оцените масштаб личности. Анна Винтур — это пример женщины, которая подчинила себе целую индустрию и стала её синонимом. Книга Эми Оделл хороша тем, что она снимает с Анны глянец и показывает её как жесткого, эффективного и гениального топ-менеджера. Для Вашего женского проекта это отличный кейс о том, как выстраивать личные границы, держать фокус на результате и оставаться безусловным авторитетом, даже если весь мир шепчется у Вас за спиной. Про “Дьявол носит Prada" писать не буду, пожалуй, эти фильмы не могли пройти мимо Вас.</p>
+            </div>
+
+            <!-- Книга 2 -->
+            <div class="book-item">
+                <h4>2. «Палаццо Мадамы. Воображаемый музей Ирины Антоновой»</h4>
+                <p><strong>Автор:</strong> Лев Данилкин</p>
+                <img class="book-img" src="./book2.jpg" alt="Ирина Антонова">
+                <p>Рекомендую книгу с тремя звездами Мишлен. Читать ее так же непросто, как впервые видеть исследования в научно-популярных книгах, когда автору кажется, что про упомянутый эксперимент все знают. Книга Льва Данилкина — это биография ума, вкуса и духа Ирины Антоновой, великой женщины-матриарха, которая больше полувека правила Пушкинским музеем. Это история о том, как масштаб личности позволяет не просто управлять институцией, а формировать культурный код целых поколений, привозить в СССР «Джоконду» и дружить с Шагалом. Потрясающий кейс о том, как женщина становится абсолютным и непререкаемым синонимом Искусства и Культуры.</p>
+            </div>
+
+            <!-- Книга 3 -->
+            <div class="book-item">
+                <h4>3. «Не бойся действовать»</h4>
+                <p><strong>Автор:</strong> Шерил Сэндберг</p>
+                <img class="book-img" src="./book3.jpg" alt="Шерил Сэндберг">
+                <p>Настольная книга современной бизнес-вумен от экс-операционного директора Meta. Главное: Как женщине занять место за столом переговоров, перестать сомневаться в своих силах, совмещать семейную жизнь с управлением корпорацией и запускать новые проекты. К слову, в 2026 она имеет более 2 млрд долларов и участвует в проекте Nscale - это про ИИ и чипы. Шерил учит брать судьбу в свои руки, и эта решимость идеально рифмуется с собственным желанием так же жить.</p>
+            </div>
+
+            <!-- Книга 4 -->
+            <div class="book-item">
+                <h4>4. «XX-Мозг» (The XX Brain)</h4>
+                <p><strong>Автор:</strong> Лайза Москони</p>
+                <img class="book-img" src="./book4.jpg" alt="XX-Мозг">
+                <p>Лайза Москони — ведущий нейробиолог, и она дает чистую науку без поп-психологии. Книга о том, как уникально работает наша нейробиология, как гормоны и эволюция сформировали женское восприятие, нашу легендарную интуицию, память и способность обрабатывать тонны информации одновременно. Это инструкция к самой себе и мощная научная база для изучения себя.</p>
+            </div>
+
+            <!-- Книга 5 -->
+            <div class="book-item">
+                <h4>5. «Полночная библиотека»</h4>
+                <p><strong>Автор:</strong> Метт Хейг</p>
+                <img class="book-img" src="./book5.jpg" alt="Полночная библиотека">
+                <p>Бодрящая художественная книга о том, что где-то в «Полночной библиотеке» и только для Вас проигрывается теория Эверетта о многомировой интерпретации - попросту мысль, о том, что Вы выбираете, в какой из множества параллельных реальностей хотите и живете свою жизнь. Идеальна в тот момент, когда Вы не решаетесь сделать выбор или сожалеете о том, что не сделали когда-то решительный шаг в сторону заманчивых возможностей. Вероятно, это был единственно правильный выбор.</p>
+            </div>
+
+            <!-- Книга 6 -->
+            <div class="book-item">
+                <h4>6. «Тысячеликая героиня»</h4>
+                <p><strong>Автор:</strong> Мария Татар</p>
+                <img class="book-img" src="./book6.jpg" alt="Тысячеликая героиня">
+                <p>Эту книгу читать имеет смысл только после «Тысячеликого героя» Кэмпбелла. Потому что перед Вами не только глубокий научный труд о месте в культуре женщины, но и захватывающий интеллектуальный баттл. И удовольствие от его наблюдения усиливается многократно, когда Вы владеете досье на каждого. Мария заполняет лакуны профессора очень гармонично, строит свой замок на женских образах, оставленных в качестве Героинь за пределами существования теории Кэмпбелла и, честное слово, наполняет культуру женской силищей. Татар может отпугивать множеством отсылок к другим произведениям, но, конечно, просто игнорируйте их. Всю эту библиотеку даже таким книжным червям как я не перечитать в скором времени. Смею надеяться, что Татар подарит Вам ощущение, что Вы - одна из нас, тысячеликих героинь, которая может исполнять любую роль, которая ей предназначена или выбрана ею самой.</p>
+            </div>
+
+            <!-- Книга 7 -->
+            <div class="book-item">
+                <h4>7. «Невидимые женщины»</h4>
+                <p><strong>Автор:</strong> Кэролайн Криадо Перес</p>
+                <img class="book-img" src="./book7.jpg" alt="Невидимые женщины">
+                <p>Главная книга о том, почему классический ИМТ, автомобильные подушки безопасности и даже дозировки лекарств исторически рассчитывались только на мужчин. Блестящее исследование о дефиците гендерных данных, которое меняет взгляд на мир и подтверждает: наши ощущения дискомфорта в повседневной жизни — это не каприз, а системный сбой дизайна мира, который мы в силах изменить.</p>
+            </div>
+
+            <!-- Книга 8 -->
+            <div class="book-item">
+                <h4>8. «ROAR»</h4>
+                <p><strong>Автор:</strong> Стейси Симс</p>
+                <img class="book-img" src="./book8.jpg" alt="ROAR">
+                <p>Женщины — не маленькие мужчины. Три важнейшие фишки из книги для Вашего тренировочного процесса: <br>
+                1. Анаболическое окно у женщин короче мужского: белок после силовой нужно закрывать строго в первые 30-45 минут.<br>
+                2. Во второй (лютеиновой) фазе цикла базальная температура выше, поэтому Вы быстрее перегреваетесь — снижайте интенсивность кардио в духоте.<br>
+                3. Высокий уровень прогестерона перед менструацией снижает объем плазмы крови (задерживая воду в тканях) — за день до тренировки пейте больше воды с электролитами (особенно с натрием), чтобы избежать резкого упадка сил.</p>
+            </div>
+
+            <!-- Книга 9 -->
+            <div class="book-item">
+                <h4>9. «Ева. История эволюции женского тела»</h4>
+                <p><strong>Автор:</strong> Кэт Бохэннон</p>
+                <img class="book-img" src="./book9.jpg" alt="Ева">
+                <p>Потрясающий и мощный антропологический нон-фикшн, который переворачивает привычный патриархальный нарратив эволюции. Бохэннон на огромном научном материале доказывает, что именно особенности женской биологии, вынашивания и социальных связей двигали человечество вперед на протяжении миллионов лет. Это великолепный, железобетонный идеологический фундамент, возвращающий гордость за нашу истинную силу. Книга красивая (жаль, иллюстрации ч/б), но и написана бойко, и структурировано классно и вообще настолько воодушевляет, что я не понимаю, почему она еще не стала суперхитом по всему миру. Особенно мне нравится юмор у Бохэннон, коего очень много в книге.</p>
+            </div>
+
+            <!-- Книга 10 -->
+            <div class="book-item">
+                <h4>10. «Выбор»</h4>
+                <p><strong>Автор:</strong> Эдит Ева Эгер</p>
+                <img class="book-img" src="./book10.jpg" alt="Выбор">
+                <p>Одна из лучших книг, которая может позволить себе роскошь не только рассказывать тяжелейшую и одухотворяющую историю жизни Эдит, но и мягко подталкивать к решениям, которые зрели годами где-то внутри. Если не удастся сразу и с легкостью расстаться с Эгер, переходите к ее книге «Дар», ее рекомендую читать с карандашом, иначе она мало эффективна, а если уж совсем затянет, купите себе ежедневник с цитатами, который будет всегда говорить, что Вы имеете право на выбор.</p>
+            </div>
+        </div>
+
     </div>
 
-    <div id="booksList" style="display: none; margin-top: 15px;"></div>
-  </div>
-
+    <div class="footer">
+        © Самозанятая Лукина Елена Николаевна, ИНН 650116420073<br>
+        Сервис «Women: Трекер ИМТ & Библиотека»<br>
+        <a onclick="openModal()">Публичная оферта и условия оказания услуг</a>
+    </div>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКНО: КАК МЫ СЧИТАЕМ -->
-<div id="mathModal" class="modal-overlay">
-  <div class="modal-body">
-    <h3 style="margin-top:0; color:var(--accent-orange); text-align:center;">Как устроен наш бережный расчет?</h3>
-    <p>Мы не используем сухие «мужские» стандарты 19 века. Каждая введенная вами цифра мягко скорректирует итоговый анализ:</p>
-    <ul>
-      <li><b>Фаза цикла и Кортизол (Стресс):</b> Во 2-й фазе цикла вычитается до 1.5 кг воды, а статус «Я в стрессе» дает дополнительную поправку на кортизоловую задержку жидкости (до -0.5 кг).</li>
-      <li><b>Тип кости (Запястье):</b> У девушек с широкой костью верхняя норма веса мягко расширяется.</li>
-      <li><b>Спорт / Силовые:</b> Если вы тренируетесь, калькулятор не считает развитые мышцы «избыточным жиром».</li>
-      <li><b>Беременности и Менопауза:</b> Повышают допустимые пороги распределения жира на талии (WHtR), защищая вас от ложной тревоги.</li>
-    </ul>
-    <button class="btn-main" onclick="closeMathModal()">Понятно, спасибо</button>
-  </div>
-</div>
+<!-- МОДАЛЬНОЕ ОКНО С ПОЛНЫМ ТЕКСТОМ ОФЕРТЫ -->
+<div id="offerModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <h3 style="text-align: center; margin-top: 0;">ПУБЛИЧНАЯ ОФЕРТА<br><small style="font-weight: normal; font-size: 14px;">о заключении договора об оказании услуг</small></h3>
+        
+        <p><strong>Общие положения</strong><br>
+        В настоящей Публичной оферте содержатся условия заключения Договора об оказании услуг (далее по тексту - «Договор об оказании услуг» и/или «Договор»). Настоящей офертой признается предложение, адресованное одному или нескольким конкретным лицам, которое достаточно определенно и выражает намерение лица, сделавшего предложение, считать себя заключившим Договор с адресатом, которым будет принято предложение.</p>
 
-<!-- МОДАЛЬНОЕ ОКНО ОФЕРТЫ -->
-<div id="offerModal" class="modal-overlay">
-  <div class="modal-body">
-    <h3 style="margin-top:0; color:var(--accent-orange); text-align:center;">ПУБЛИЧНАЯ ОФЕРТА</h3>
-    <p><b>1. Общие положения</b><br>
-    Настоящий документ является официальным предложением Самозанятой Лукиной Елены Николаевны (ИНН: 650116420073) на предоставление доступа к сервису.<br>
-    Стоимость доступа составляет 78 (семьдесят восемь) рублей сроком на 1 год.</p>
-    <p><b>2. Контакты Исполнителя:</b><br>
-    E-mail: alyonasemenov@gmail.com</p>
-    <button class="btn-main" onclick="closeOfferModal()">Закрыть</button>
-  </div>
+        <p>Совершение указанных в настоящей Оферте действий является подтверждением согласия обеих Сторон заключить Договор об оказании услуг на условиях, в порядке и объеме, изложенных в настоящей Оферте.</p>
+
+        <p>Нижеизложенный текст Публичной оферты является официальным публичным предложением Исполнителя, адресованный заинтересованному кругу лиц заключить Договор об оказании услуг в соответствии с положениями пункта 2 статьи 437 Гражданского кодекса РФ.</p>
+
+        <p>Договор об оказании услуг считается заключенным и приобретает силу с момента совершения Сторонами действий, предусмотренных в настоящей Оферте, и, означающих безоговорочное, а также полное принятие всех условий настоящей Оферты без каких-либо изъятий или ограничений на условиях присоединения.</p>
+
+        <p><strong>Термины и определения:</strong><br>
+        <strong>Договор</strong> – текст настоящей Оферты с Приложениями, являющимися неотъемлемой частью настоящей Оферты, акцептованный Заказчиком путем совершения конклюдентных действий, предусмотренных настоящей Офертой.<br>
+        <strong>Конклюдентные действия</strong> — это поведение, которое выражает согласие с предложением контрагента заключить, изменить или расторгнуть договор. Действия состоят в полном или частичном выполнении условий, которые предложил контрагент.<br>
+        <strong>Сайт Исполнителя в сети «Интернет»</strong> – совокупность программ для электронных вычислительных машин и иной информации, содержащейся в информационной системе, доступ к которой обеспечивается посредством сети «Интернет» по доменному имени и сетевому адресу: <a href="https://t.me/women_BMI_bot" target="_blank">https://t.me/women_BMI_bot</a><br>
+        <strong>Стороны Договора (Стороны)</strong> – Исполнитель и Заказчик.<br>
+        <strong>Услуга</strong> – услуга, оказываемая Исполнителем Заказчику в порядке и на условиях, установленных настоящей Офертой.</p>
+
+        <p><strong>Предмет Договора</strong><br>
+        Исполнитель обязуется оказать Заказчику Услуги, а Заказчик обязуется оплатить их в размере, порядке и сроки, установленные настоящим Договором.<br>
+        Наименование, количество, порядок и иные условия оказания Услуг определяются на основании сведений Исполнителя при оформлении заявки Заказчиком, либо устанавливаются на сайте Исполнителя в сети «Интернет» <a href="https://t.me/women_BMI_bot" target="_blank">https://t.me/women_BMI_bot</a><br>
+        Исполнитель оказывает Услуги по настоящему Договору лично, либо с привлечением третьих лиц, при этом за действия третьих лиц Исполнитель отвечает перед Заказчиком как за свои собственные.</p>
+
+        <p>Договор заключается путем акцепта настоящей Оферты через совершение конклюдентных действий, выраженных в:
+        <ul>
+            <li>действиях, связанных с регистрацией учетной записи на Сайте Исполнителя в сети «Интернет» при наличии необходимости регистрации учетной записи;</li>
+            <li>оформлении и направлении Заказчиком заявки в адрес Исполнителя для оказания Услуг;</li>
+            <li>действиях, связанных с оплатой Услуг Заказчиком;</li>
+            <li>действиях, связанных с оказанием Услуг Исполнителем.</li>
+        </ul>
+        Данный перечень неисчерпывающий, могут быть и другие действия, которые ясно выражают намерение лица принять предложение контрагента.</p>
+
+        <p><strong>Права и обязанности Сторон</strong><br>
+        <em>Права и обязанности Исполнителя:</em><br>
+        1. Исполнитель обязуется оказать Услуги в соответствии с положениями настоящего Договора, в сроки и объеме, указанные в настоящем Договоре и (или) в порядке, указанном на Сайте Исполнителя.<br>
+        2. Исполнитель обязуется предоставлять Заказчику доступ к разделам Сайта, необходимым для получения информации.<br>
+        3. Исполнитель несет ответственность за хранение и обработку персональных данных Заказчика, обеспечивает сохранение конфиденциальности этих данных и использует их исключительно для качественного оказания Услуг Заказчику.<br>
+        4. Исполнитель оставляет за собой право изменять сроки (период) оказания Услуг и условия настоящей Оферты в одностороннем порядке без предварительного уведомления Заказчика, публикуя указанные изменения на Сайте Исполнителя в сети «Интернет». При этом новые / измененные условия, указываемые на Сайте, действуют только в отношении вновь заключаемых Договоров.</p>
+
+        <p><em>Права и обязанности Заказчика:</em><br>
+        1. Заказчик обязан предоставлять достоверную информацию о себе при получении соответствующих Услуг.<br>
+        2. Заказчик обязуется не воспроизводить, не повторять, не копировать, не продавать, а также не использовать в каких бы то ни было целях информацию и материалы, ставшие ему доступными в связи с оказанием Услуг, за исключением личного использования непосредственно самим Заказчиком без предоставления в какой-либо форме доступа каким-либо третьим лицам.<br>
+        3. Заказчик обязуется принять Услуги, оказанные Исполнителем;<br>
+        4. Заказчик вправе потребовать от Исполнителя вернуть денежные средства за неоказанные услуги, некачественно оказанные услуги, услуги, оказанные с нарушением сроков оказания, а также, если Заказчик решил отказаться от услуг по причинам, не связанным с нарушением обязательств со стороны Исполнителя, исключительно по основаниям, предусмотренным действующим законодательством Российской Федерации.<br>
+        5. Заказчик гарантирует, что все условия Договора ему понятны; Заказчик принимает условия без оговорок, а также в полном объеме.</p>
+
+        <p><strong>Цена и порядок расчетов</strong><br>
+        Стоимость услуг Исполнителя, оказываемых Заказчиком и порядок их оплаты, определяются на основании сведений Исполнителя при оформлении заявки Заказчиком либо устанавливаются на Сайте Исполнителя в сети «Интернет»: <a href="https://t.me/women_BMI_bot" target="_blank">https://t.me/women_BMI_bot</a><br>
+        Все расчеты по Договору производятся в безналичном порядке.</p>
+
+        <p><strong>Конфиденциальность и безопасность</strong><br>
+        При реализации настоящего Договора Стороны обеспечивают конфиденциальность и безопасность персональных данных в соответствии с актуальной редакцией ФЗ от 27.07.2006 г. № 152-ФЗ «О персональных данных» и ФЗ от 27.07.2006 г. № 149-ФЗ «Об информации, информационных технологиях и о защите информации». Стороны обязуются сохранять конфиденциальность информации, полученной в ходе исполнения настоящего Договора, и принять все возможные меры, чтобы предохранить полученную информацию от разглашения.</p>
+
+        <p><strong>Форс-мажор</strong><br>
+        Стороны освобождаются от ответственности за неисполнение или ненадлежащее исполнение обязательств по Договору, если надлежащее исполнение оказалось невозможным вследствие непреодолимой силы...</p>
+
+        <p><strong>Реквизиты Исполнителя</strong><br>
+        Полное наименование: Самозанятая Лукина Елена Николаевна<br>
+        ИНН: 650116420073<br>
+        ОГРН/ОГРНИП: Не предусмотрено (плательщик налога на профессиональный доход)<br>
+        Контактный телефон: +7 985 715-15-05<br>
+        Контактный e-mail: alyonasemenov@gmail.com</p>
+    </div>
 </div>
 
 <script>
-  const tg = window.Telegram?.WebApp;
-  if(tg) tg.expand();
+    let tg = window.Telegram ? window.Telegram.WebApp : null;
+    if (tg) { tg.expand(); }
 
-  let isPaid = localStorage.getItem('isPaid') === 'true';
-
-  const booksLibrary = [
-    { title: "«ANNA: Биография Анны Винтур»", author: "Эми Оделл", text: "Масштаб личности женщины, изменившей индустрию моды..." },
-    { title: "«XX-Мозг» (The XX Brain)", author: "Лайза Москони", text: "Чистая наука о нейробиологии женского мозга..." },
-    { title: "«Невидимые женщины»", author: "Кэролайн Криадо Перес", text: "Исследование о том, как мир создавался без учета женской анатомии..." },
-    { title: "«ROAR»", author: "Стейси Симс", text: "Женщины — не маленькие мужчины. Физиология физических нагрузок..." }
-  ];
-
-  function switchTab(tabId, btn) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    btn.classList.add('active');
-
-    if(tabId === 'booksTab') renderBooks();
-    if(tabId === 'chartsTab') renderChart();
-  }
-
-  function calculate() {
-    const height = parseFloat(document.getElementById('height').value);
-    const weight = parseFloat(document.getElementById('weight').value);
-    const waist = parseFloat(document.getElementById('waist').value);
-    const hips = parseFloat(document.getElementById('hips').value);
-    const cycleDay = parseInt(document.getElementById('cycleDay').value) || 1;
-    const stress = document.getElementById('stress').value;
-    const births = document.getElementById('births').value;
-    const wrist = document.getElementById('wrist').value;
-    const fitness = document.getElementById('fitness').value;
-    const menopause = document.getElementById('menopause').value;
-
-    if(!height || !weight || !waist) {
-      alert("Пожалуйста, заполните основные поля: Рост, Вес и Талию.");
-      return;
+    function switchTab(tabName, evt) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        if (evt) { evt.target.classList.add('active'); }
+        document.getElementById('tab-' + tabName).classList.add('active');
     }
 
-    let waterRetention = 0;
-    if(cycleDay >= 15) waterRetention += 1.5;
-    if(stress === 'stressed') waterRetention += 0.5;
+    function calculateBMI() {
+        const height = parseFloat(document.getElementById('height').value) / 100;
+        let weight = parseFloat(document.getElementById('weight').value);
+        const cycle = document.getElementById('cycle').value;
+        const stress = document.getElementById('stress').value;
+        const bodyType = document.getElementById('bodyType').value;
+        const postpartum = document.getElementById('postpartum').value;
 
-    const dryWeight = weight - waterRetention;
-    const heightM = height / 100;
-    let bmi = dryWeight / (heightM * heightM);
-
-    if(wrist === 'wide') bmi -= 0.5;
-    if(fitness === 'sport') bmi -= 1.0;
-
-    const whtr = waist / height;
-    let whtrLimit = 0.50;
-    if(births === "1") whtrLimit += 0.02;
-    if(births === "2") whtrLimit += 0.04;
-    if(menopause === "perimeno") whtrLimit += 0.02;
-
-    document.getElementById('statusTitle').innerText = "🌸 Ваш персональный разбор";
-    
-    let extraDetails = "";
-    if(hips) {
-      const whr = (waist / hips).toFixed(2);
-      extraDetails += `<br><b>Индекс Талия/Бедра (WHR):</b> ${whr}`;
-    }
-
-    document.getElementById('calcDetails').innerHTML = `
-      <b>Скорректированный ИМТ:</b> ${bmi.toFixed(1)}<br>
-      <b>Индекс талия/рост:</b> ${whtr.toFixed(2)} (Норма до ${whtrLimit.toFixed(2)})
-      ${extraDetails}<br>
-      <b>Учтенная задержка воды:</b> -${waterRetention} кг
-    `;
-
-    document.getElementById('careNote').innerText = stress === 'stressed'
-      ? "Замечен повышенный стресс. Кортизол временного удерживает воду — дайте себе отдых."
-      : "Данные рассчитаны с учетом Вашей индивидуальной физиологии.";
-
-    document.getElementById('resultBlock').style.display = 'block';
-    document.getElementById('bmiCard').style.display = 'block';
-
-    let percentage = 0;
-    if (bmi < 18.5) percentage = (bmi / 18.5) * 25;
-    else if (bmi <= 24.9) percentage = 25 + ((bmi - 18.5) / (24.9 - 18.5)) * 35;
-    else if (bmi <= 29.9) percentage = 60 + ((bmi - 25) / (29.9 - 25)) * 20;
-    else percentage = 80 + Math.min(((bmi - 30) / 10) * 20, 20);
-
-    document.getElementById('bmiPointer').style.left = Math.max(0, Math.min(percentage, 98)) + '%';
-
-    // Сохраняем расчет в историю для графика
-    saveToHistory(cycleDay, weight, dryWeight);
-  }
-
-  function saveToHistory(day, w, dryW) {
-    let history = JSON.parse(localStorage.getItem('weightHistory') || '[]');
-    
-    // Проверяем, есть ли уже запись для этого дня цикла
-    const existingIndex = history.findIndex(item => item.day === day);
-    
-    if (existingIndex !== -1) {
-      // Обновляем данные для текущего дня
-      history[existingIndex] = { day, weight: w, dryWeight: Number(dryW.toFixed(1)) };
-    } else {
-      // Добавляем новый день
-      history.push({ day, weight: w, dryWeight: Number(dryW.toFixed(1)) });
-    }
-
-    // Сортируем дни цикла по порядку (1, 2, 3... 35)
-    history.sort((a, b) => a.day - b.day);
-
-    localStorage.setItem('weightHistory', JSON.stringify(history));
-  }
-
-  function clearHistory() {
-    if (confirm("Вы уверены, что хотите очистить историю замеров?")) {
-      localStorage.removeItem('weightHistory');
-      renderChart();
-    }
-  }
-
-  function renderChart() {
-    let history = JSON.parse(localStorage.getItem('weightHistory') || '[]');
-    
-    const ctx = document.getElementById('weightChart').getContext('2d');
-    if(window.myChart) window.myChart.destroy();
-
-    // Если история пуста, показываем базовый наглядный пример
-    if(history.length === 0) {
-      history = [
-        { day: 5, weight: 62.0, dryWeight: 62.0 },
-        { day: 14, weight: 62.2, dryWeight: 62.2 },
-        { day: 21, weight: 63.5, dryWeight: 62.0 },
-        { day: 28, weight: 63.8, dryWeight: 62.1 }
-      ];
-    }
-
-    window.myChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: history.map(h => `День ${h.day}`),
-        datasets: [
-          { 
-            label: 'Вес на весах', 
-            data: history.map(h => h.weight), 
-            borderColor: '#e87a5d', 
-            backgroundColor: 'rgba(232, 122, 93, 0.1)', 
-            fill: true, 
-            tension: 0.3 
-          },
-          { 
-            label: 'Сухой вес (без отека)', 
-            data: history.map(h => h.dryWeight), 
-            borderColor: '#6ec081', 
-            borderDash: [5, 5], 
-            fill: false, 
-            tension: 0.3 
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: false
-          }
+        if (!height || !weight || height <= 0 || weight <= 0) {
+            alert('Пожалуйста, введите корректные параметры.');
+            return;
         }
-      }
-    });
-  }
 
-  function saveChartReminder() {
-    alert("📸 Сделайте скриншот экрана устройства, чтобы сохранить этот график в свою галерею!");
-  }
+        let adjustment = 0;
+        let details = [];
 
-  function renderBooks() {
-    const paywall = document.getElementById('paywallBlock');
-    const booksList = document.getElementById('booksList');
+        if (cycle === 'luteal') { adjustment -= 1.5; details.push('Задержка воды в ПМС: -1.5 кг'); }
+        else if (cycle === 'ovulation') { adjustment -= 0.5; details.push('Задержка воды в овуляцию: -0.5 кг'); }
 
-    if(isPaid) {
-      paywall.style.display = 'none';
-      booksList.style.display = 'block';
-      booksList.innerHTML = booksLibrary.map(b => `
-        <div class="book-card">
-          <h4 style="margin:0; color:var(--accent-orange);">${b.title}</h4>
-          <div style="font-size:0.8rem; font-weight:bold; color:#777;">${b.author}</div>
-          <div style="font-size:0.85rem; line-height:1.4;">${b.text}</div>
-        </div>
-      `).join('');
-    } else {
-      paywall.style.display = 'block';
-      booksList.style.display = 'none';
+        if (stress === 'high') { adjustment -= 1.0; details.push('Кортизоловая отечность: -1.0 кг'); }
+
+        if (bodyType === 'hypersthenic') { adjustment -= 1.5; details.push('Широкая кость (плотность скелета): -1.5 кг'); }
+        else if (bodyType === 'asthenic') { adjustment += 1.0; details.push('Тонкая кость: +1.0 кг'); }
+
+        if (postpartum === 'yes') { adjustment -= 1.0; details.push('Послеродовое восстановление: -1.0 кг'); }
+
+        const adjustedWeight = weight + adjustment;
+        const bmi = (adjustedWeight / (height * height)).toFixed(1);
+
+        let category = '';
+        if (bmi < 18.5) category = 'Дефицит массы тела';
+        else if (bmi >= 18.5 && bmi <= 24.9) category = 'Нормальный физиологический вес';
+        else if (bmi >= 25 && bmi <= 29.9) category = 'Небольшое отклонение';
+        else category = 'Повышенный ИМТ';
+
+        const resultDiv = document.getElementById('result');
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = `
+            <h4>Ваш бережный ИМТ: ${bmi} (${category})</h4>
+            <p><strong>Вес на весах:</strong> ${weight} кг | <strong>Физиологический вес:</strong> ${adjustedWeight.toFixed(1)} кг</p>
+            <div class="calc-breakdown">
+                <strong>Как мы рассчитали ваш вес:</strong>
+                <ul style="margin: 5px 0 0 0; padding-left: 18px;">
+                    ${details.length > 0 ? details.map(d => `<li>${d}</li>`).join('') : '<li>Без поправок (стандартное состояние)</li>'}
+                </ul>
+            </div>
+        `;
+
+        saveToChart(bmi, adjustedWeight.toFixed(1));
     }
-  }
 
-  function payWithRobokassa() {
-    if(!document.getElementById('offerAgreement').checked) {
-      alert("Пожалуйста, подтвердите согласие с Договором оферты");
-      return;
+    let chart;
+    function saveToChart(bmi, weight) {
+        const dateStr = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+        let history = JSON.parse(localStorage.getItem('bmi_history') || '[]');
+        history.push({ date: dateStr, bmi: bmi, weight: weight });
+        if (history.length > 10) history.shift();
+        localStorage.setItem('bmi_history', JSON.stringify(history));
+        updateChart(history);
     }
-    const robokassaUrl = "https://auth.robokassa.ru/Merchant/Index.aspx?MerchantLogin=YOUR_LOGIN&OutSum=78.00&Description=Women_BMI_Books";
-    
-    if(window.Telegram?.WebApp) {
-      window.Telegram.WebApp.openLink(robokassaUrl);
-    } else {
-      window.open(robokassaUrl, '_blank');
-    }
-  }
 
-  function openMathModal() { document.getElementById('mathModal').style.display = 'block'; }
-  function closeMathModal() { document.getElementById('mathModal').style.display = 'none'; }
-  function openOfferModal(e) { e.preventDefault(); document.getElementById('offerModal').style.display = 'block'; }
-  function closeOfferModal() { document.getElementById('offerModal').style.display = 'none'; }
+    function updateChart(history) {
+        const ctx = document.getElementById('bmiChart').getContext('2d');
+        const labels = history.map(item => item.date);
+        const data = history.map(item => item.bmi);
+
+        if (chart) chart.destroy();
+
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Динамика ИМТ',
+                    data: data,
+                    borderColor: '#d88a8a',
+                    backgroundColor: 'rgba(216, 138, 138, 0.15)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: false } } }
+        });
+    }
+
+    function clearHistory() {
+        localStorage.removeItem('bmi_history');
+        if (chart) chart.destroy();
+        alert('История очищена.');
+    }
+
+    window.onload = function() {
+        let history = JSON.parse(localStorage.getItem('bmi_history') || '[]');
+        if (history.length > 0) updateChart(history);
+    };
+
+    function openModal() { document.getElementById('offerModal').style.display = 'block'; }
+    function closeModal() { document.getElementById('offerModal').style.display = 'none'; }
 </script>
 </body>
 </html>
