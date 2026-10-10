@@ -1,0 +1,7 @@
+name = "izht-telegram-bot"
+main = "src/worker.js"
+compatibility_date = "2026-09-01"
+
+[vars]
+APP_URL = "https://alyonasemenov.github.io/women-books-app/"
+CHANNEL_URL = "https://t.me/alyonasemyonova"
