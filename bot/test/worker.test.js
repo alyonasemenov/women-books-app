@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import worker,{commandOf,responseFor} from '../src/worker.js';
+const env={APP_URL:'https://alyonasemenov.github.io/women-books-app/',CHANNEL_URL:'https://t.me/alyonasemyonova',BOT_TOKEN:'test',WEBHOOK_SECRET:'test_secret'};
+test('Telegram commands',()=>{assert.equal(commandOf('/start'),'start');assert.equal(commandOf('/APP@women_BMI_bot details'),'app');assert.equal(commandOf('hello'),null)});
+test('All commands have text and launch buttons',()=>{for(const c of ['start','app','about','help']){const v=responseFor(c,env);assert.ok(v.text.length>50);assert.ok(v.reply_markup.inline_keyboard.flat().some(b=>b.web_app?.url.startsWith('https://')))}});
+test('Health',async()=>{const r=await worker.fetch(new Request('https://example.com/health'),env);assert.equal(r.status,200)});
+test('Webhook auth',async()=>{const r=await worker.fetch(new Request('https://example.com/telegram/webhook',{method:'POST',body:'{}'}),env);assert.equal(r.status,401)});
+test('Unrecognized messages ignored',async()=>{const r=await worker.fetch(new Request('https://example.com/telegram/webhook',{method:'POST',headers:{'X-Telegram-Bot-Api-Secret-Token':env.WEBHOOK_SECRET},body:JSON.stringify({message:{text:'Hi',chat:{id:1,type:'private'}}})}),env);assert.equal(r.status,200)});
+test('Group messages ignored',async()=>{const r=await worker.fetch(new Request('https://example.com/telegram/webhook',{method:'POST',headers:{'X-Telegram-Bot-Api-Secret-Token':env.WEBHOOK_SECRET},body:JSON.stringify({message:{text:'/start',chat:{id:1,type:'supergroup'}}})}),env);assert.equal(r.status,200)});
