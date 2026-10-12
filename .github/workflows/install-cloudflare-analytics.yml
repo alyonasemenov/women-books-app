@@ -1,0 +1,46 @@
+name: Install Cloudflare Web Analytics
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Insert Cloudflare analytics before closing body
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("index.html")
+          content = path.read_bytes()
+          marker = b"<!-- Cloudflare Web Analytics -->"
+          if marker in content:
+              print("Cloudflare Analytics already installed; no changes needed")
+          else:
+              closing = b"</body>"
+              if closing not in content:
+                  raise SystemExit("No </body> tag: no file was modified")
+              snippet = b"""<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "0d952b69073c40768ee926c7a2f9491a"}'></script><!-- End Cloudflare Web Analytics -->
+          """
+              before, after = content.rsplit(closing, 1)
+              path.write_bytes(before + snippet + closing + after)
+              print("Analytics script inserted; other content unchanged")
+          PY
+      - name: Commit only the analytics insertion
+        run: |
+          git diff --check
+          if git diff --quiet -- index.html; then
+            echo "Nothing to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Add Cloudflare Web Analytics tracking to IZHT"
+          git push
